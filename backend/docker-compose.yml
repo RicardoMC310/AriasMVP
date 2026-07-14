@@ -1,0 +1,16 @@
+services:
+
+  backend-api:
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arias-backend-mvp
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - .env.prod
+
