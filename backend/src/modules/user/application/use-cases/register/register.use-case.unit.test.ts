@@ -4,7 +4,7 @@ import InvalidPasswordException from "../../exception/invalid-password.exception
 import IUserHasher from "../port/hasher.port.js";
 import RegisterUserUseCase from "./register.use-case.js";
 
-describe("User registration use case tests", () => {
+describe("Testes do caso de uso de registro de usuário", () => {
 
     let registerUseCase: RegisterUserUseCase;
     let testUserRepository: TestFakeUserRepository;
@@ -16,7 +16,7 @@ describe("User registration use case tests", () => {
         registerUseCase = new RegisterUserUseCase(testUserRepository, testUserHasher);
     });
 
-    it("It should register a user without issues", async () => {
+    it("Deve registrar um usuário sem erros", async () => {
         const body = {
             username: "ricardo",
             email: "ricardo@gmail.com",
@@ -34,7 +34,7 @@ describe("User registration use case tests", () => {
         expect(testUserRepository.users[0].passwordHash).toBe("hashed:" + body.password);
     });
 
-    it("It should throw an exception if the email is invalid", async () => {
+    it("Deve lançar uma exceção se o email for inválido", async () => {
         const body = {
             username: "ricardo",
             email: "ricardo",
@@ -46,7 +46,7 @@ describe("User registration use case tests", () => {
         expect(testUserRepository.users).toHaveLength(0);
     });
 
-    it("It should throw an exception if the password is invalid", async () => {
+    it("Deve lançar uma exceção se a senha for inválida", async () => {
         const body = {
             username: "ricardo",
             email: "ricardo@gmain.com",

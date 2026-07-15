@@ -1,9 +1,9 @@
 import InvalidEmailException from "../exception/invalid-email.exception.js";
 import Email from "./email.vo.js";
 
-describe("Email Value Object Test", () => {
+describe("Teste do Value Object Email", () => {
 
-    it("It must return the content unchanged", () => {
+    it("Deve retornar o conteúdo sem alterações", () => {
         const emailRaw = "ricardo@gmail.com";
 
         const email = Email.create(emailRaw);
@@ -11,7 +11,7 @@ describe("Email Value Object Test", () => {
         expect(email.toString()).toBe(emailRaw);
     });
 
-    it("It should throw an error if an invalid email is passed", () => {
+    it("Deve lançar uma exceção se um email inválido for passado", () => {
         const emailRaw = "ricardo";
 
         expect(() => Email.create(emailRaw)).toThrow(InvalidEmailException);

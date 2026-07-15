@@ -1,8 +1,8 @@
 import UserEntityBuilder from "../builder/user-entity.builder.js";
 
-describe("Tests for the user entity", () => {
+describe("Testes da entidade de usuário", () => {
 
-    it("It should return the properties without modification", () => {
+    it("Deve retornar as propriedades sem modificação", () => {
         const username = "ricardo";
         const email = "ricardo@gmail.com";
         const passwordHash = "hashed:ricardo";

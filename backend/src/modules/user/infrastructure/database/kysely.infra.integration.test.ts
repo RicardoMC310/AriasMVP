@@ -5,7 +5,7 @@ import ArgonUserHasher from "../hasher/argon2.infra.js";
 import KyselyUserRepository from "./kysely.infra.js";
 import { DB } from "../../../../platform/database/db.js";
 
-describe("integration test with kysely", () => {
+describe("Teste de integração com kysely", () => {
     let db: Kysely<DB>;
 
     beforeEach(async () => {
@@ -17,7 +17,7 @@ describe("integration test with kysely", () => {
         await db.deleteFrom("users").execute();
     });
 
-    it("It must save the user to the database", async () => {
+    it("Deve salvar o usuário no banco de dados", async () => {
         const body = {
             username: "ricardo",
             email: "ricardo@gmail.com",
