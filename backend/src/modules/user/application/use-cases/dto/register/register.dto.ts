@@ -6,7 +6,7 @@ export const RegisterUserDTOSchema = z.object({
     password: z.string().regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\W_]).{8,}$/,
         {
-            message: "Senha deve ter pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial"
+            message: "The password must have at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
         }
     )
 });
