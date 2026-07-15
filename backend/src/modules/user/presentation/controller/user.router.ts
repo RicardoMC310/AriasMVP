@@ -4,9 +4,11 @@ import UserController from "./user.controller.js";
 import RegisterUserUseCase from "../../application/use-cases/register/register.use-case.js";
 import KyselyUserRepository from "../../infrastructure/database/kysely.infra.js";
 import ArgonUserHasher from "../../infrastructure/hasher/argon2.infra.js";
+import { Kysely } from "kysely";
+import { DB } from "../../../../platform/database/db.js";
 
-export default function makeUserRouter(): HttpController {
-    const userController = buildController();
+export default function makeUserRouter(db: Kysely<DB>): HttpController {
+    const userController = buildController(db);
 
     const router = express.Router();
 
@@ -18,8 +20,8 @@ export default function makeUserRouter(): HttpController {
     }
 }
 
-function buildController(): UserController {
-    const kyselyUserRespository = new KyselyUserRepository();
+function buildController(db: Kysely<DB>): UserController {
+    const kyselyUserRespository = new KyselyUserRepository(db);
     const argonUserHasher = new ArgonUserHasher();
     const registerUserUseCase = new RegisterUserUseCase(kyselyUserRespository, argonUserHasher);
 
