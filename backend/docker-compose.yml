@@ -14,3 +14,45 @@ services:
     env_file:
       - .env.prod
 
+    depends_on:
+      - postgres    
+      
+  postgres:
+
+    image: postgres:18-alpine
+    container_name: arias-postgres-mvp
+    restart: unless-stopped
+
+    ports:
+      - "5432:5432"
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: arias-erp
+
+    volumes:
+      - postgres_data:/var/lib/postgres
+
+  pgadmin:
+
+    image: dpage/pgadmin4
+    container_name: arias-pgadmin-mvp
+    restart: unless-stopped
+
+    ports:
+      - "5050:80"
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  pgadmin_data:
