@@ -1,5 +1,5 @@
 import { Kysely } from "kysely";
-import UserEntity from "../../domain/entity/user.entity.js";
+import UserEntity, { UserState } from "../../domain/entity/user.entity.js";
 import IUserRepository from "../../domain/repository/user.repository.js";
 import { DB } from "../../../../platform/database/db.js";
 import { createDatabase } from "../../../../platform/database/kysely.connection.js";
@@ -35,6 +35,7 @@ export default class KyselyUserRepository implements IUserRepository {
             .withEmail(user.email)
             .withUsername(user.name)
             .withPasswordHash(user.password_hash)
+            .withState(user.state as UserState)
             .build();
     }
 
