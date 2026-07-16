@@ -10,6 +10,6 @@ export function createDatabase(connectionString: string): Kysely<DB> {
     return new Kysely<DB>({
         dialect: new PostgresDialect({
             pool
-        })
+        }),
     });
 }
