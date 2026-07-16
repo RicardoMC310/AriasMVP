@@ -9,13 +9,23 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
-export interface Users {
-  email: string | null;
+export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export interface RefreshToken {
+  expires_at: Timestamp;
   id: Generated<string>;
-  name: string | null;
-  password_hash: string | null;
+  refresh_token_hash: string;
+  user_id: string;
+}
+
+export interface Users {
+  email: string;
+  id: Generated<string>;
+  name: string;
+  password_hash: string;
 }
 
 export interface DB {
+  refresh_token: RefreshToken;
   users: Users;
 }
