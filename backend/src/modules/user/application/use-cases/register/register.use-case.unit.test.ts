@@ -1,7 +1,9 @@
+import { beforeEach, expect, jest, describe, it } from "@jest/globals";
 import InvalidEmailException from "../../../../../core/domain/exception/invalid-email.exception.js";
 import UserEntity from "../../../domain/entity/user.entity.js";
-import InvalidPasswordException from "../../exception/invalid-password.exception.js";
-import IUserHasher from "../port/hasher.port.js";
+import IUserRepository from "../../../domain/repository/user.repository.js";
+import InvalidPasswordException from "../../../domain/exception/invalid-password.exception.js";
+import IUserHasher from "../../port/hasher.port.js";
 import RegisterUserUseCase from "./register.use-case.js";
 
 describe("Testes do caso de uso de registro de usuário", () => {
@@ -60,13 +62,15 @@ describe("Testes do caso de uso de registro de usuário", () => {
 
 });
 
-class TestFakeUserRepository {
+class TestFakeUserRepository implements IUserRepository {
 
     users: UserEntity[] = [];
 
     async save(userEntity: UserEntity): Promise<void> {
         this.users.push(userEntity);
     }
+
+    findUserByEmail = jest.fn(async () => { return null });
 
 }
 
