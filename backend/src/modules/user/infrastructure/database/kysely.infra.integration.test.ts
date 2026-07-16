@@ -4,17 +4,25 @@ import RegisterUserUseCase from "../../application/use-cases/register/register.u
 import ArgonUserHasher from "../hasher/argon2.infra.js";
 import KyselyUserRepository from "./kysely.infra.js";
 import { DB } from "../../../../platform/database/db.js";
+import FindUserByEmailUseCase from "../../application/use-cases/find-by-email/find-by-email.use-case.js";
+import { afterAll, beforeEach, describe, expect, it } from "@jest/globals";
 
 describe("Teste de integração com kysely", () => {
     let db: Kysely<DB>;
+    let kyselyUserRepository: KyselyUserRepository;
 
     beforeEach(async () => {
         if (process.env.DATABASE_URL === undefined)
             throw new Error("Missing environment variable DATABASE_URL");
 
         db = createDatabase(process.env.DATABASE_URL);
+        kyselyUserRepository = new KyselyUserRepository(db);
 
         await db.deleteFrom("users").execute();
+    });
+
+    afterAll(async () => {
+        await db.destroy();
     });
 
     it("Deve salvar o usuário no banco de dados", async () => {
@@ -24,9 +32,8 @@ describe("Teste de integração com kysely", () => {
             password: "RicardoMC310@"
         };
 
-        const kyselyRepository = new KyselyUserRepository(db);
         const argonHasher = new ArgonUserHasher();
-        const registerUseCase = new RegisterUserUseCase(kyselyRepository, argonHasher);
+        const registerUseCase = new RegisterUserUseCase(kyselyUserRepository, argonHasher);
 
         await expect(registerUseCase.execute(body)).resolves.not.toThrow();
 
@@ -34,6 +41,29 @@ describe("Teste de integração com kysely", () => {
 
         expect(user.name).toBe(body.username);
         expect(user.email).toBe(body.email);
+    });
+
+    it("Deve achar usuário por email", async () => {
+        const username = "ricardo";
+        const email = username + "@gmail.com";
+        const passwordHash = "hashed:" + username;
+
+        await db.insertInto("users")
+            .values({
+                name: username,
+                email: email,
+                password_hash: passwordHash
+            })
+            .execute();
+
+        const findUserByEmailUseCase = new FindUserByEmailUseCase(kyselyUserRepository);
+
+        const user = await findUserByEmailUseCase.findUserByEmail(email);
+
+        expect(user.id).toBeDefined();
+        expect(user.username).toBe(username);
+        expect(user.email).toBe(email);
+        expect(user.passwordHash).toBe(passwordHash);
     });
 
 })
