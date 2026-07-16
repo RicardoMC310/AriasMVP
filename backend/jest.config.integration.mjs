@@ -11,7 +11,9 @@ export default {
         "**/*.integration.test.ts"
     ],
 
-    extensionsToTreatAsEsm: [".ts"],
+    extensionsToTreatAsEsm: [
+        ".ts"
+    ],
 
     transform: {
         ...tsJestTransformCfg,
