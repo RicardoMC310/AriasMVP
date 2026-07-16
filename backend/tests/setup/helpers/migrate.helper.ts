@@ -18,7 +18,7 @@ export default async function migrateDatabase(databaseUrl: string) {
         provider: new FileMigrationProvider({
             path,
             fs,
-            migrationFolder: path.resolve(__dirname, "../../src/platform/database/migrations"),
+            migrationFolder: path.resolve(__dirname, "../../../src/platform/database/migrations"),
         }),
     });
 
