@@ -21,7 +21,7 @@ describe("Teste do caso de uso de procurar usuário por email", () => {
         useCase = new FindUserByEmailUseCase(userRepository);
     });
 
-    it("Deve lançar uma exceção caso email não exista", async () => {
+    it("Deve retornar usuário pelo email", async () => {
         const email = "ricardo@gmail.com";
 
         const user = await useCase.findUserByEmail(email);
@@ -29,10 +29,12 @@ describe("Teste do caso de uso de procurar usuário por email", () => {
         expect(user).toBeDefined();
     });
 
-    it("Deve retornar null para email não encontrado", async () => {
+    it("Deve retornar null para usuário não encontrado", async () => {
         const email = "ricardo1@gmail.com";
 
-        await expect(useCase.findUserByEmail(email)).rejects.toThrow();
+        const user = await useCase.findUserByEmail(email);
+
+        expect(user).toBeNull();
     });
 
 });
