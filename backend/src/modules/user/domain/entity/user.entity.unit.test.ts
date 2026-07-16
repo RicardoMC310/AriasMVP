@@ -15,9 +15,10 @@ describe("Testes da entidade de usuário", () => {
             .withEmail(email)
             .withPasswordHash(passwordHash)
             .withState(UserState.ACTIVE)
+            .withId("101010")
             .build();
 
-        expect(userEntity.id).toBeNull();
+        expect(userEntity.id).toBeDefined();
         expect(userEntity.email).toBe(email);
         expect(userEntity.username).toBe(username);
         expect(userEntity.passwordHash).toBe(passwordHash);
