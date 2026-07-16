@@ -1,22 +1,23 @@
 services:
 
-  backend-api:
+  # backend-api:
 
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: arias-backend-mvp
-    restart: unless-stopped
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: arias-backend-mvp
+  #   restart: unless-stopped
 
-    ports:
-      - "8080:8080"
+  #   ports:
+  #     - "8080:8080"
 
-    env_file:
-      - .env.prod
+  #   env_file:
+  #     - .env.prod
 
-    depends_on:
-      - postgres    
-      
+  #   depends_on:
+  #     - postgres
+  #     - mailpit
+
   postgres:
 
     image: postgres:18-alpine
@@ -52,6 +53,16 @@ services:
 
     depends_on:
       - postgres
+
+  mailpit:
+
+    image: axllent/mailpit
+    container_name: arias-mailpit-mvp
+    restart: unless-stopped
+
+    ports:
+      - "8025:8025"
+      - "1025:1025"
 
 volumes:
   postgres_data:
