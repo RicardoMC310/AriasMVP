@@ -9,14 +9,11 @@ export default class FindUserByEmailUseCase {
         private readonly userRepository: IUserRepository
     ) {}
 
-    async findUserByEmail(email: string): Promise<UserEntity> {
+    async findUserByEmail(email: string): Promise<UserEntity | null> {
         this.validateInput(email);
 
         const userFound = await this.userRepository.findUserByEmail(email);
-
-        if(userFound === null)
-            throw new UserNotFoundException();
-
+        
         return userFound;
     }
 
