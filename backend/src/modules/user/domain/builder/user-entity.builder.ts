@@ -6,14 +6,14 @@ export default class UserEntityBuilder {
     private _username!: string;
     private _email!: string;
     private _passwordHash!: string;
-    private _id: string | null = null;
+    private _id!: string;
     private _state: UserState = UserState.VERIFICATION_PENDING;
 
     static create(): UserEntityBuilder {
         return new UserEntityBuilder();
     }
 
-    withId(id: string | null): this {
+    withId(id: string): this {
         this._id = id;
         return this;
     }
