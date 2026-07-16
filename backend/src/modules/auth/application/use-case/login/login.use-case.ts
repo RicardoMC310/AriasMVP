@@ -1,6 +1,7 @@
 import InvalidUserAttributeException from "../../../../../core/domain/exception/invalid-attributes-user.exception.js";
 import InvalidEmailException from "../../../../../core/domain/exception/invalid-email.exception.js";
 import Email from "../../../../../core/domain/vo/email.vo.js";
+import UserNotFoundException from "../../../../user/domain/exception/user-not-found.exception.js";
 import AuthCredentialsInvalidException from "../../../domain/exception/credentials-invalid.exception.js";
 import AuthLoginRequestDTO from "../../dto/in/login/login-request.dto.js";
 import AuthLoginResponseDTO from "../../dto/out/login-response.dto.js";
@@ -20,6 +21,9 @@ export default class AuthLoginUseCase {
         this.validateInput(dto);
         
         const userFound = await this.userFinder.findUserByEmail(dto.email);
+
+        if (userFound === null)
+            throw new UserNotFoundException();
 
         if (userFound.id === null) {
             throw new InvalidUserAttributeException("id");
