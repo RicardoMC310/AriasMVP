@@ -1,5 +1,3 @@
-export default async function () {
+import { teardown } from "./integration-environments";
 
-    console.log("Cleaning integration environment...");
-
-}
+export default teardown;
