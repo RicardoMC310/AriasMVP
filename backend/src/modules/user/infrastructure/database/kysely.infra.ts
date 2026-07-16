@@ -14,6 +14,7 @@ export default class KyselyUserRepository implements IUserRepository {
     async save(userEntity: UserEntity): Promise<void> {
         await this.db.insertInto("users")
             .values({
+                id: userEntity.id,
                 name: userEntity.username,
                 email: userEntity.email,
                 password_hash: userEntity.passwordHash
