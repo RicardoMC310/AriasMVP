@@ -8,8 +8,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "db:generate": "dotenv -- kysely-codegen --out-file src/platform/database/db.ts",
-    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --verbose -c jest.config.unit.mjs --passWithNoTests",
-    "test:integration": "NODE_OPTIONS='--experimental-vm-modules' jest --verbose -c jest.config.integration.mjs --passWithNoTests"
+    "db:migrate": "kysely migrate:latest",
+    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --verbose -c jest.config.unit.mjs --passWithNoTests --detectOpenHandles",
+    "test:integration": "NODE_OPTIONS='--experimental-vm-modules' jest --verbose -c jest.config.integration.mjs --passWithNoTests --detectOpenHandles"
   },
   "keywords": [],
   "author": "RicardoMC310",
@@ -23,9 +24,13 @@
   },
   "type": "module",
   "devDependencies": {
+    "@jest/globals": "^30.4.1",
     "@tsconfig/recommended": "^1.0.13",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.1.1",
     "@types/pg": "^8.20.0",
     "dotenv-cli": "^11.0.0",
@@ -39,8 +44,11 @@
   },
   "dependencies": {
     "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "kysely": "^0.29.3",
     "pg": "^8.22.0",
     "zod": "^4.4.3"
