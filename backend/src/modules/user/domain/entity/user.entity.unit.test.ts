@@ -1,4 +1,5 @@
 import UserEntityBuilder from "../builder/user-entity.builder.js";
+import { describe, expect, it } from "@jest/globals";
 
 describe("Testes da entidade de usuário", () => {
 
