@@ -11,6 +11,8 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
+export type UserStateEnum = "ACTIVE" | "BLOCKED" | "VERIFICATION_PENDING";
+
 export interface RefreshToken {
   expires_at: Timestamp;
   id: Generated<string>;
@@ -23,6 +25,7 @@ export interface Users {
   id: Generated<string>;
   name: string;
   password_hash: string;
+  state: Generated<UserStateEnum>;
 }
 
 export interface DB {
