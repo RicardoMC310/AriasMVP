@@ -8,7 +8,7 @@ import 'refresh_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/',
     refreshListenable: RouterRefreshNotifier(ref),
     routes: [
       ...authRoutes,  
@@ -17,12 +17,15 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
     redirect: (context, state) {
       final token = ref.read(authProvider);
+
       final loggedIn = token != null;
       final goingToLogin = state.matchedLocation == '/login';
+      final goingToRegister = state.matchedLocation == '/register';
 
-      if (!loggedIn && !goingToLogin) return '/login';
-      if (loggedIn && goingToLogin) return '/dashboard';
-      return null;
-    },
+      if (!loggedIn && !(goingToLogin || goingToRegister)) return '/'; // Are you going to Arias without identify yourself?? I don't think so! 
+      if (loggedIn && (goingToLogin || goingToRegister)) return '/dashboard'; // Well, you have identified yourself. So you don't need to do it again. Get out!  
+
+      return null; // Are you f**king kidding me?! CALL YOUR DEV RIGHT NOW, you have did a lot of sh*t. 
+    }
   );
 });
