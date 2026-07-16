@@ -1,9 +1,9 @@
-import Specification from "../../../../core/domain/specifications/specification.specification.js";
+import AbstractSpecification from "../../../../core/domain/specifications/abstract.specification.js";
 import UserEntity, { UserState } from "../../../user/domain/entity/user.entity.js";
 
-export default class UserActiveSpecification implements Specification<UserEntity> {
+export default class UserActiveSpecification extends AbstractSpecification<UserEntity> {
 
-    isSatisfiedBy(entity: UserEntity): boolean {
+    override isSatisfiedBy(entity: UserEntity): boolean {
         return entity.state === UserState.ACTIVE;
     }
 
