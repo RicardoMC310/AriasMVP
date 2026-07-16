@@ -1,13 +1,15 @@
-import InvalidUserAttributeException from "../../../../../core/domain/exception/invalid-attributes-user.exception.js";
-import InvalidEmailException from "../../../../../core/domain/exception/invalid-email.exception.js";
 import Email from "../../../../../core/domain/vo/email.vo.js";
 import UserNotFoundException from "../../../../user/domain/exception/user-not-found.exception.js";
+import LoginPolicy from "../../../domain/policies/login.policy.js";
+import UserActiveSpecification from "../../../domain/specifications/user-verified.specification.js";
 import AuthCredentialsInvalidException from "../../../domain/exception/credentials-invalid.exception.js";
 import AuthLoginRequestDTO from "../../dto/in/login/login-request.dto.js";
 import AuthLoginResponseDTO from "../../dto/out/login-response.dto.js";
 import IAuthHasher from "../../port/hasher.port.js";
 import IAuthTokenGenerator from "../../port/token-generator.port.js";
 import IAuthUserFinder from "../../port/user-finder.port.js";
+import UserNotVerifiedException from "../../../domain/exception/user-not-verified.exception.js";
+import UserEntity from "../../../../user/domain/entity/user.entity.js";
 
 export default class AuthLoginUseCase {
 
@@ -15,26 +17,16 @@ export default class AuthLoginUseCase {
         private readonly userFinder: IAuthUserFinder,
         private readonly authHasher: IAuthHasher,
         private readonly tokenGenerator: IAuthTokenGenerator
-    ) {}
+    ) { }
 
     async execute(dto: AuthLoginRequestDTO): Promise<AuthLoginResponseDTO> {
         this.validateInput(dto);
-        
-        const userFound = await this.userFinder.findUserByEmail(dto.email);
 
-        if (userFound === null)
-            throw new UserNotFoundException();
+        const userFound = await this.findUser(dto.email);
+        this.canLogin(userFound);
+        await this.credentialValid(userFound, dto.password);
 
-        if (userFound.id === null) {
-            throw new InvalidUserAttributeException("id");
-        }
-
-        const match = await this.authHasher.verify(userFound.passwordHash, dto.password);
-        if (!match) {
-            throw new AuthCredentialsInvalidException();
-        }
-
-        const token = await this.tokenGenerator.generateToken(userFound.id);
+        const token = await this.tokenGenerator.generateToken(userFound.id!);
 
         return {
             token: token
@@ -45,4 +37,27 @@ export default class AuthLoginUseCase {
         Email.isValid(dto.email);
     }
 
+    private async findUser(email: string): Promise<UserEntity> {
+        const userFound = await this.userFinder.findUserByEmail(email);
+
+        if (userFound === null)
+            throw new UserNotFoundException();
+
+        return userFound;
+    }
+
+    private canLogin(userFound: UserEntity) {
+        const loginPolicy = new LoginPolicy(new UserActiveSpecification());
+
+        if (!loginPolicy.can(userFound))
+            throw new UserNotVerifiedException();
+
+    }
+
+    private async credentialValid(userFound: UserEntity, password: string) {
+        const match = await this.authHasher.verify(userFound.passwordHash, password);
+        if (!match) {
+            throw new AuthCredentialsInvalidException();
+        }
+    }
 }
