@@ -5,7 +5,7 @@ import ArgonUserHasher from "../hasher/argon2.infra.js";
 import KyselyUserRepository from "./kysely.infra.js";
 import { DB } from "../../../../platform/database/db.js";
 import FindUserByEmailUseCase from "../../application/use-cases/find-by-email/find-by-email.use-case.js";
-import { afterAll, beforeEach, describe, expect, it } from "@jest/globals";
+import { afterAll, beforeEach, describe, expect, it, afterEach } from "@jest/globals";
 
 describe("Teste de integração com kysely com o módulo de usuário", () => {
     let db: Kysely<DB>;
@@ -21,7 +21,7 @@ describe("Teste de integração com kysely com o módulo de usuário", () => {
         await db.deleteFrom("users").execute();
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
         await db.destroy();
     });
 
@@ -60,10 +60,10 @@ describe("Teste de integração com kysely com o módulo de usuário", () => {
 
         const user = await findUserByEmailUseCase.findUserByEmail(email);
 
-        expect(user.id).toBeDefined();
-        expect(user.username).toBe(username);
-        expect(user.email).toBe(email);
-        expect(user.passwordHash).toBe(passwordHash);
+        expect(user!.id).toBeDefined();
+        expect(user!.username).toBe(username);
+        expect(user!.email).toBe(email);
+        expect(user!.passwordHash).toBe(passwordHash);
     });
 
 })
