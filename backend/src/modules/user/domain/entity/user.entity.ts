@@ -13,7 +13,7 @@ export default class UserEntity {
         private _username: string,
         private _email: Email,
         private _passwordHash: string,
-        private _id: string | null = null,
+        private _id: string,
         private _state: UserState = UserState.VERIFICATION_PENDING
     ) {}
 
@@ -29,7 +29,7 @@ export default class UserEntity {
         return this._passwordHash;
     }
 
-    get id(): string | null {
+    get id(): string {
         return this._id;
     }
 
