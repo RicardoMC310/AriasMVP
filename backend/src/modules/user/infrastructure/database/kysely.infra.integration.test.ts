@@ -7,7 +7,7 @@ import { DB } from "../../../../platform/database/db.js";
 import FindUserByEmailUseCase from "../../application/use-cases/find-by-email/find-by-email.use-case.js";
 import { afterAll, beforeEach, describe, expect, it } from "@jest/globals";
 
-describe("Teste de integração com kysely", () => {
+describe("Teste de integração com kysely com o módulo de usuário", () => {
     let db: Kysely<DB>;
     let kyselyUserRepository: KyselyUserRepository;
 
