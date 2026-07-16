@@ -9,7 +9,7 @@ export default async function createPostgresContainer() {
             POSTGRES_DB: "arias-test"
         })
         .withWaitStrategy(
-            Wait.forListeningPorts()
+            Wait.forLogMessage("database system is ready to accept connections", 2)
         )
         .start();
 
