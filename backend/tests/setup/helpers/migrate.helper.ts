@@ -6,7 +6,7 @@ import { promises as fs } from "node:fs";
 
 const __dirname = import.meta.dirname!;
 
-export default async function migrateDatabase(databaseUrl: string) {
+export default async function migrateDatabase(databaseUrl: string): Promise<void> {
     const pool = new Pool({ connectionString: databaseUrl });
 
     const db = new Kysely({
@@ -27,6 +27,8 @@ export default async function migrateDatabase(databaseUrl: string) {
     if (error) {
         throw error;
     }
+
+    pool.on("error", (err) => {});
 
     await pool.end();
 }
