@@ -1,9 +1,11 @@
 import InvalidEmailException from "../../../../../core/domain/exception/invalid-email.exception.js";
 import UserEntityBuilder from "../../../domain/builder/user-entity.builder.js";
 import IUserRepository from "../../../domain/repository/user.repository.js";
-import InvalidPasswordException from "../../exception/invalid-password.exception.js";
-import RegisterUserDTO from "../dto/register/register.dto.js";
-import IUserHasher from "../port/hasher.port.js";
+import InvalidPasswordException from "../../../domain/exception/invalid-password.exception.js";
+import RegisterUserDTO from "../../dto/register/register.dto.js";
+import IUserHasher from "../../port/hasher.port.js";
+import Email from "../../../../../core/domain/vo/email.vo.js";
+import UserAlreadyRegisteredException from "../../../domain/exception/already-register.exception.js";
 
 export default class RegisterUserUseCase {
 
@@ -14,6 +16,11 @@ export default class RegisterUserUseCase {
 
     async execute(dto: RegisterUserDTO): Promise<void> {
         this.validateInput(dto);
+
+        const userFound = await this.userRepository.findUserByEmail(dto.email);
+
+        if (userFound !== null)
+            throw new UserAlreadyRegisteredException();
 
         const passwordHash = await this.userHasher.hash(dto.password);
 
@@ -27,8 +34,7 @@ export default class RegisterUserUseCase {
     }
 
     private validateInput(dto: RegisterUserDTO) {
-        if (!dto.email.includes("@")) 
-            throw new InvalidEmailException(dto.email);
+        Email.isValid(dto.email);
 
         const regex: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\W_]).{8,}$/;
 
