@@ -7,14 +7,16 @@ import IUserHasher from "../../port/hasher.port.js";
 import Email from "../../../../../core/domain/vo/email.vo.js";
 import UserAlreadyRegisteredException from "../../../domain/exception/already-register.exception.js";
 import IUserCreateEmailVerificationUseCase from "../../port/create-email-verification.port.js";
+import UserRegisterObserver from "../../port/types/user-observer-register.observer.js";
 
 export default class RegisterUserUseCase {
 
+    private observers: UserRegisterObserver[] = [];
+
     constructor(
         private readonly userRepository: IUserRepository,
-        private readonly userHasher: IUserHasher,
-        private readonly userCreateEmailVerification: IUserCreateEmailVerificationUseCase
-    ) {}
+        private readonly userHasher: IUserHasher
+    ) { }
 
     async execute(dto: RegisterUserDTO): Promise<void> {
         this.validateInput(dto);
@@ -35,10 +37,11 @@ export default class RegisterUserUseCase {
 
         await this.userRepository.save(userEntity);
 
-        await this.userCreateEmailVerification.execute({
-            email: dto.email,
-            userId: userEntity.id
-        });
+        await this.notifyAll(userEntity.email, userEntity.id);
+    }
+
+    public registerObserver(observer: UserRegisterObserver) {
+        this.observers.push(observer);
     }
 
     private validateInput(dto: RegisterUserDTO) {
@@ -48,6 +51,12 @@ export default class RegisterUserUseCase {
 
         if (!regex.test(dto.password))
             throw new InvalidPasswordException();
+    }
+
+    private async notifyAll(email: string, userId: string) {
+        for (const observer of this.observers) {
+            await observer.execute({ email, userId });
+        }
     }
 
 }
