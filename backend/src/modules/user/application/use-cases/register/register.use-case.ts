@@ -54,9 +54,11 @@ export default class RegisterUserUseCase {
     }
 
     private async notifyAll(email: string, userId: string) {
-        for (const observer of this.observers) {
-            await observer.execute({ email, userId });
-        }
+        await Promise.all(
+            this.observers.map(observer =>
+                observer.execute({ email, userId })
+            )
+        );
     }
 
 }
