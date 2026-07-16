@@ -5,17 +5,26 @@ import IUserRepository from "../../../domain/repository/user.repository.js";
 import InvalidPasswordException from "../../../domain/exception/invalid-password.exception.js";
 import IUserHasher from "../../port/hasher.port.js";
 import RegisterUserUseCase from "./register.use-case.js";
+import IUserCreateEmailVerificationUseCase from "../../port/create-email-verification.port.js";
+import CreateEmailVerificationDTO from "../../../../email-verification/application/dto/in/create-email-verification/create-email-verification.dto.js";
+import EmailVerificationEntity from "../../../../email-verification/domain/entities/email-verification.entity.js";
 
 describe("Testes do caso de uso de registro de usuário", () => {
 
     let registerUseCase: RegisterUserUseCase;
     let testUserRepository: TestFakeUserRepository;
     let testUserHasher: TestFakeUserHasher;
+    let testUserEmailVerification: TestFakeEmailVerification;
 
     beforeEach(() => {
         testUserRepository = new TestFakeUserRepository();
         testUserHasher = new TestFakeUserHasher();
-        registerUseCase = new RegisterUserUseCase(testUserRepository, testUserHasher);
+        testUserEmailVerification = new TestFakeEmailVerification();
+        registerUseCase = new RegisterUserUseCase(
+            testUserRepository, 
+            testUserHasher, 
+            testUserEmailVerification
+        );
     });
 
     it("Deve registrar um usuário sem erros", async () => {
@@ -78,6 +87,16 @@ class TestFakeUserHasher implements IUserHasher {
 
     async hash(text: string): Promise<string> {
         return "hashed:" + text;
+    }
+
+}
+
+class TestFakeEmailVerification implements IUserCreateEmailVerificationUseCase {
+
+    emails: CreateEmailVerificationDTO[] = [];
+
+    async execute(dto: CreateEmailVerificationDTO): Promise<void> {
+        this.emails.push()
     }
 
 }
