@@ -1,4 +1,4 @@
-import IUserHasher from "../../application/use-cases/port/hasher.port.js";
+import IUserHasher from "../../application/port/hasher.port.js";
 import argon2 from "argon2";
 
 export default class ArgonUserHasher implements IUserHasher {
