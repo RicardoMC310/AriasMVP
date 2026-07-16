@@ -1,20 +1,26 @@
-import express, { Express } from "express"
-import { config as dotenvConfig } from "dotenv";
+import express from "express"
 import makeRouter from "./router.js";
 import errorMiddleware from "./platform/express/middleware/error.middleware.js";
 import { createDatabase } from "./platform/database/kysely.connection.js";
-dotenvConfig();
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import loadEnv from "./platform/env/load.env.js";
 
 (async () => {
-    
-    if (process.env.DATABASE_URL === undefined)
-        throw new Error("Missing environment variable DATABASE_URL");
 
-    const db = createDatabase(process.env.DATABASE_URL);
+    const db = createDatabase(loadEnv("DATABASE_URL"));
 
-    const app: Express = express();
+    const app = express();
 
     app.use(express.json());
+    app.use(cors({
+        origin: loadEnv("CORS_ORIGIN"),
+        allowedHeaders: loadEnv("CORS_HEADERS"),
+        methods: loadEnv("CORS_METHODS"),
+        credentials: true
+    }));
+    app.use(cookieParser(loadEnv("COOKIE_SECRET")));
+
     app.use(makeRouter(db));
 
     const host = process.env.SERVER_HOST ?? "0.0.0.0";
@@ -25,4 +31,8 @@ dotenvConfig();
     app.listen(port, host, () => {
         console.log(`Running server in http://${host}:${port}`);
     });
-})()
+    
+})().catch(err => {
+    console.log(err);
+    process.exit(1);
+});
