@@ -13,6 +13,15 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type UserStateEnum = "ACTIVE" | "BLOCKED" | "VERIFICATION_PENDING";
 
+export interface EmailVerification {
+  attempts: Generated<number>;
+  code_hash: string;
+  expiresAt: Timestamp;
+  id: Generated<string>;
+  user_id: string;
+  verified: Generated<boolean | null>;
+}
+
 export interface RefreshToken {
   expires_at: Timestamp;
   id: Generated<string>;
@@ -29,6 +38,7 @@ export interface Users {
 }
 
 export interface DB {
+  email_verification: EmailVerification;
   refresh_token: RefreshToken;
   users: Users;
 }
