@@ -18,6 +18,8 @@ export default {
     ...tsJestTransformCfg,
   },
 
+  injectGlobals: false,
+
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },

@@ -21,6 +21,8 @@ export default {
         "^(\\.{1,2}/.*)\\.js$": "$1",
     },
 
+    injectGlobals: false,
+
     testEnvironment: "node",
 
     globalSetup: "./tests/setup/global-setup.ts",
