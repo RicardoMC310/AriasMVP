@@ -1,4 +1,5 @@
 import Email from "../../../../core/domain/vo/email.vo.js";
+import UserCannotTransitionStateException from "../exception/cannot-transition-state.exception.js";
 
 export enum UserState {
     VERIFICATION_PENDING = "VERIFICATION_PENDING",
@@ -34,6 +35,17 @@ export default class UserEntity {
 
     get state(): UserState {
         return this._state;
+    }
+
+    verifyEmail() {
+        if (this._state !== UserState.VERIFICATION_PENDING)
+            throw new UserCannotTransitionStateException(this._state, UserState.ACTIVE);
+
+        this._state = UserState.ACTIVE;
+    }
+
+    block() {
+        this._state = UserState.BLOCKED;
     }
 
 }
