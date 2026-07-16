@@ -7,6 +7,9 @@ import { DB } from "../../../../platform/database/db.js";
 import FindUserByEmailUseCase from "../../application/use-cases/find-by-email/find-by-email.use-case.js";
 import { beforeEach, describe, expect, it, afterEach } from "@jest/globals";
 import { UserState } from "../../domain/entity/user.entity.js";
+import CreateEmailVerificationUseCase from "../../../email-verification/application/use-cases/create-email-verification/create-email-verification.use-case.js";
+import KyselyEmailVerificationRepository from "../../../email-verification/infrastructure/database/kysely.infra.js";
+import EmailVericationCodeGenerator from "../../../email-verification/infrastructure/code/code-generator.infra.js";
 
 describe("Teste de integração com kysely com o módulo de usuário", () => {
     let db: Kysely<DB>;
@@ -19,6 +22,7 @@ describe("Teste de integração com kysely com o módulo de usuário", () => {
         db = createDatabase(process.env.DATABASE_URL);
         kyselyUserRepository = new KyselyUserRepository(db);
 
+        await db.deleteFrom("email_verification").execute();
         await db.deleteFrom("users").execute();
     });
 
@@ -33,8 +37,19 @@ describe("Teste de integração com kysely com o módulo de usuário", () => {
             password: "RicardoMC310@"
         };
 
+        const kyselyEmailVerificationRepository = new KyselyEmailVerificationRepository(db);
+        const emailVerificatioCodeGenerator = new EmailVericationCodeGenerator();
+        const createEmailVerificationUseCase = new CreateEmailVerificationUseCase(
+            emailVerificatioCodeGenerator,
+            kyselyEmailVerificationRepository
+        );
+
         const argonHasher = new ArgonUserHasher();
-        const registerUseCase = new RegisterUserUseCase(kyselyUserRepository, argonHasher);
+        const registerUseCase = new RegisterUserUseCase(
+            kyselyUserRepository, 
+            argonHasher,
+            createEmailVerificationUseCase
+        );
 
         await expect(registerUseCase.execute(body)).resolves.not.toThrow();
 
