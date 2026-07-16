@@ -36,8 +36,9 @@ function buildController(db: Kysely<DB>): UserController {
     const registerUserUseCase = new RegisterUserUseCase(
         kyselyUserRespository, 
         argonUserHasher, 
-        createEmailVerificationUseCase
     );
+
+    registerUserUseCase.registerObserver(createEmailVerificationUseCase);
 
     const controller = new UserController(
         registerUserUseCase
