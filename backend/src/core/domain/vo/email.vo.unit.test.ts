@@ -1,5 +1,6 @@
 import InvalidEmailException from "../exception/invalid-email.exception.js";
 import Email from "./email.vo.js";
+import { describe, expect, it } from "@jest/globals";
 
 describe("Teste do Value Object Email", () => {
 
