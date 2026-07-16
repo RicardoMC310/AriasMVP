@@ -3,7 +3,6 @@ import { Kysely } from "kysely";
 import { DB } from "../../../../platform/database/db.js";
 import KyselyEmailVerificationRepository from "./kysely.infra.js";
 import { createDatabase } from "../../../../platform/database/kysely.connection.js";
-import EmailVerificationEntityBuilder from "../../domain/builder/email-verification.builder.js";
 import CreateEmailVerificationUseCase from "../../application/use-cases/create-email-verification/create-email-verification.use-case.js";
 import EmailVericationCodeGenerator from "../code/code-generator.infra.js";
 
