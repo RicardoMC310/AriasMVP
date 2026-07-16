@@ -14,16 +14,13 @@ describe("Testes do caso de uso de registro de usuário", () => {
     let registerUseCase: RegisterUserUseCase;
     let testUserRepository: TestFakeUserRepository;
     let testUserHasher: TestFakeUserHasher;
-    let testUserEmailVerification: TestFakeEmailVerification;
 
     beforeEach(() => {
         testUserRepository = new TestFakeUserRepository();
         testUserHasher = new TestFakeUserHasher();
-        testUserEmailVerification = new TestFakeEmailVerification();
         registerUseCase = new RegisterUserUseCase(
             testUserRepository, 
-            testUserHasher, 
-            testUserEmailVerification
+            testUserHasher
         );
     });
 
@@ -87,16 +84,6 @@ class TestFakeUserHasher implements IUserHasher {
 
     async hash(text: string): Promise<string> {
         return "hashed:" + text;
-    }
-
-}
-
-class TestFakeEmailVerification implements IUserCreateEmailVerificationUseCase {
-
-    emails: CreateEmailVerificationDTO[] = [];
-
-    async execute(dto: CreateEmailVerificationDTO): Promise<void> {
-        this.emails.push()
     }
 
 }
