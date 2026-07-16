@@ -6,9 +6,15 @@ export default class UserEntityBuilder {
     private _username!: string;
     private _email!: string;
     private _passwordHash!: string;
+    private _id: string | null = null;
 
     static create(): UserEntityBuilder {
         return new UserEntityBuilder();
+    }
+
+    withId(id: string | null): this {
+        this._id = id;
+        return this;
     }
 
     withUsername(username: string): this {
@@ -30,7 +36,8 @@ export default class UserEntityBuilder {
         return new UserEntity(
             this._username,
             Email.create(this._email),
-            this._passwordHash
+            this._passwordHash,
+            this._id
         );
     }
 
