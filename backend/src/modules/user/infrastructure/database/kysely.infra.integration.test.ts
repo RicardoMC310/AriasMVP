@@ -5,7 +5,8 @@ import ArgonUserHasher from "../hasher/argon2.infra.js";
 import KyselyUserRepository from "./kysely.infra.js";
 import { DB } from "../../../../platform/database/db.js";
 import FindUserByEmailUseCase from "../../application/use-cases/find-by-email/find-by-email.use-case.js";
-import { afterAll, beforeEach, describe, expect, it, afterEach } from "@jest/globals";
+import { beforeEach, describe, expect, it, afterEach } from "@jest/globals";
+import { UserState } from "../../domain/entity/user.entity.js";
 
 describe("Teste de integração com kysely com o módulo de usuário", () => {
     let db: Kysely<DB>;
@@ -64,6 +65,7 @@ describe("Teste de integração com kysely com o módulo de usuário", () => {
         expect(user!.username).toBe(username);
         expect(user!.email).toBe(email);
         expect(user!.passwordHash).toBe(passwordHash);
+        expect(user!.state).toBe(UserState.VERIFICATION_PENDING);
     });
 
 })
