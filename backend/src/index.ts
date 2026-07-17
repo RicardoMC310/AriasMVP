@@ -13,7 +13,7 @@ import loadEnv from "./platform/env/load.env.js";
 
     app.use(express.json());
     app.use(cors({
-        origin: loadEnv("CORS_ORIGIN"),
+        origin: loadEnv("CORS_ORIGIN", "*"),
         allowedHeaders: loadEnv("CORS_HEADERS"),
         methods: loadEnv("CORS_METHODS"),
         credentials: true
