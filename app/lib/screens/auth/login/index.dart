@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: () => {}, child: Text('Login')),
+            ElevatedButton(onPressed: () {}, child: Text('Login')),
             SizedBox(height: 10),
             ElevatedButton(onPressed: () => context.go('/register'), child: Text("Don't have an account? Register")),
           ],

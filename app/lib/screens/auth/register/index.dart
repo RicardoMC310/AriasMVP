@@ -46,7 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: authRepository.call, child: Text('Register')),
+            ElevatedButton(onPressed: () {}, child: Text('Register')),
             SizedBox(height: 10),
             ElevatedButton(onPressed: () => context.go('/login'), child: Text("Already have an account? Login")),
           ],
