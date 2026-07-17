@@ -112,4 +112,32 @@ describe("Teste da entidade mail", () => {
         expect(emailEntity.attachments[0].content).toBe(body.attachments[0].content);
     });
 
+    it("Deve criar um email sem anexos", () => {
+        const emailEntity = MailEntityBuilder.create()
+            .withFrom("arias@gmail.com")
+            .withTo("ricardo@gmail.com")
+            .withSubject("Teste")
+            .withBody("<p>Corpo</p>")
+            .build();
+
+        expect(emailEntity.from).toBe("arias@gmail.com");
+        expect(emailEntity.to).toBe("ricardo@gmail.com");
+        expect(emailEntity.attachments).toHaveLength(0);
+    });
+
+    it("Deve criar um email com múltiplos anexos", () => {
+        const emailEntity = MailEntityBuilder.create()
+            .withFrom("arias@gmail.com")
+            .withTo("ricardo@gmail.com")
+            .withSubject("Teste")
+            .withBody("<p>Corpo</p>")
+            .withAttachments([
+                { filename: "file1.txt", content: "conteudo1" },
+                { filename: "file2.txt", content: Buffer.from("conteudo2") }
+            ])
+            .build();
+
+        expect(emailEntity.attachments).toHaveLength(2);
+    });
+
 });
