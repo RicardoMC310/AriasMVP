@@ -77,6 +77,8 @@ class TestFakeCodeGenerator implements IEmailVerificationCodeGenerator {
         };
     }
 
+    verify = jest.fn<(hash: string, text: string) => boolean>();
+
 }
 
 class TestFakeRepository implements IEmailVerificationRepository {
