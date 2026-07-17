@@ -1,3 +1,4 @@
+import 'package:app/api/repositories/auth.repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _authRepository = AuthRepository();
+
   final TextEditingController emailController = TextEditingController(); 
   final TextEditingController passwordController = TextEditingController(); 
 
@@ -35,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: () {}, child: Text('Login')),
+            ElevatedButton(onPressed: () => _authRepository, child: Text('Login')),
             SizedBox(height: 10),
             ElevatedButton(onPressed: () => context.go('/register'), child: Text("Don't have an account? Register")),
           ],

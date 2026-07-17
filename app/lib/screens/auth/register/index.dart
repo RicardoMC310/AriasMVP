@@ -10,7 +10,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final authRepository = AuthRepository();
+  final _authRepository = AuthRepository();
 
   final TextEditingController nameController = TextEditingController(); 
   final TextEditingController emailController = TextEditingController(); 
@@ -46,7 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: () {}, child: Text('Register')),
+            ElevatedButton(onPressed: () => _authRepository, child: Text('Register')),
             SizedBox(height: 10),
             ElevatedButton(onPressed: () => context.go('/login'), child: Text("Already have an account? Login")),
           ],
