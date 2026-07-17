@@ -1,6 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
 import EmailVerificationEntityBuilder from "../builder/email-verification.builder.js";
-import { EventEmitterAsyncResource } from "node:events";
 import AlreadyEmailVerificationUsedException from "../exception/already-email-verification-used.exception.js";
 import LimitEmailVerificationAttemptsExceededException from "../exception/limit-attempts-exceeded.exception.js";
 import ExpiredEmailVerificationException from "../exception/expired-email-verification.exception.js";
