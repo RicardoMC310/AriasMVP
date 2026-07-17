@@ -5,9 +5,8 @@ import IUserRepository from "../../../domain/repository/user.repository.js";
 import InvalidPasswordException from "../../../domain/exception/invalid-password.exception.js";
 import IUserHasher from "../../port/hasher.port.js";
 import RegisterUserUseCase from "./register.use-case.js";
-import IUserCreateEmailVerificationUseCase from "../../port/create-email-verification.port.js";
-import CreateEmailVerificationDTO from "../../../../email-verification/application/dto/in/create-email-verification/create-email-verification.dto.js";
-import EmailVerificationEntity from "../../../../email-verification/domain/entities/email-verification.entity.js";
+import UserAlreadyRegisteredException from "../../../domain/exception/already-register.exception.js";
+import UserEntityBuilder from "../../../domain/builder/user-entity.builder.js";
 
 describe("Testes do caso de uso de registro de usuário", () => {
 
@@ -62,6 +61,27 @@ describe("Testes do caso de uso de registro de usuário", () => {
         };
 
         await expect(registerUseCase.execute(body)).rejects.toThrow(InvalidPasswordException);
+
+        expect(testUserRepository.users).toHaveLength(0);
+    });
+
+    it("Deve lançar uma exceção se o email já estiver registrado", async () => {
+        testUserRepository.findUserByEmail.mockResolvedValueOnce(
+            UserEntityBuilder.create()
+                .withId("101010")
+                .withEmail("ricardo@gmail.com")
+                .withUsername("ricardo")
+                .withPasswordHash("hashed:12345678")
+                .build()
+        );
+
+        const body = {
+            username: "ricardo",
+            email: "ricardo@gmail.com",
+            password: "Rm30042009#"
+        };
+
+        await expect(registerUseCase.execute(body)).rejects.toThrow(UserAlreadyRegisteredException);
 
         expect(testUserRepository.users).toHaveLength(0);
     });
