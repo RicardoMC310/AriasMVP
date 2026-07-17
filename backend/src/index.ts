@@ -7,7 +7,6 @@ import cookieParser from "cookie-parser";
 import loadEnv from "./platform/env/load.env.js";
 
 (async () => {
-
     const db = createDatabase(loadEnv("DATABASE_URL"));
 
     const app = express();
