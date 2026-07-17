@@ -16,6 +16,7 @@ export type UserStateEnum = "ACTIVE" | "BLOCKED" | "VERIFICATION_PENDING";
 export interface EmailVerification {
   attempts: Generated<number>;
   code_hash: string;
+  email: string;
   expiresAt: Timestamp;
   id: Generated<string>;
   user_id: string;
