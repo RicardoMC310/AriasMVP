@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import AuthLoginUseCase from "../../application/use-case/login/login.use-case.js";
 import { AuthLoginRequestDTOSchema } from "../../application/dto/in/login/login-request.dto.js";
-import unwrapZodResult from "../../../../platform/zod/unwrap-result.zod.js";
+import unwrapResult from "../../../../platform/zod/unwrap-result.zod.js";
 import loadEnv from "../../../../platform/env/load.env.js";
 import createHttpResponse from "../../../../platform/express/create-response.express.js";
 
@@ -17,7 +17,7 @@ export default class AuthController {
 
     login = async (req: Request, res: Response) => {
         const bodyRaw = AuthLoginRequestDTOSchema.safeParse(req.body);
-        const body = unwrapZodResult(bodyRaw);
+        const body = unwrapResult(bodyRaw);
 
         const { token } = await this.loginUseCase.execute(body);
 
