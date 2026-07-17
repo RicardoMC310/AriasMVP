@@ -1,16 +1,69 @@
 services:
 
-  backend-api:
+  # backend-api:
 
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: arias-backend-mvp
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: arias-backend-mvp
+  #   restart: unless-stopped
+
+  #   ports:
+  #     - "8080:8080"
+
+  #   env_file:
+  #     - .env.prod
+
+  #   depends_on:
+  #     - postgres
+  #     - mailpit
+
+  postgres:
+
+    image: postgres:18-alpine
+    container_name: arias-postgres-mvp
     restart: unless-stopped
 
     ports:
-      - "8080:8080"
+      - "5432:5432"
 
-    env_file:
-      - .env.prod
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: arias-erp
 
+    volumes:
+      - postgres_data:/var/lib/postgres
+
+  pgadmin:
+
+    image: dpage/pgadmin4
+    container_name: arias-pgadmin-mvp
+    restart: unless-stopped
+
+    ports:
+      - "5050:80"
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+    depends_on:
+      - postgres
+
+  mailpit:
+
+    image: axllent/mailpit
+    container_name: arias-mailpit-mvp
+    restart: unless-stopped
+
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+volumes:
+  postgres_data:
+  pgadmin_data:

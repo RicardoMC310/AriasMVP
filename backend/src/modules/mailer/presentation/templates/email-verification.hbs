@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de E-mail</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f7fb;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2937;
+            padding: 32px 16px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+        }
+
+        header {
+            background: #2563eb;
+            color: white;
+            padding: 28px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 26px;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            opacity: .9;
+            font-size: 14px;
+        }
+
+        main {
+            padding: 40px 32px;
+        }
+
+        main h2 {
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        main p {
+            text-align: center;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .token-box {
+            margin: 32px 0 20px;
+            padding: 18px;
+            background: #f3f4f6;
+            border: 2px dashed #2563eb;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 6px;
+            color: #2563eb;
+            word-break: break-word;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button:active {
+            transform: scale(.98);
+        }
+
+        .copied {
+            margin-top: 16px;
+            text-align: center;
+            color: #16a34a;
+            font-weight: bold;
+            display: none;
+        }
+
+        footer {
+            padding: 24px;
+            background: #f9fafb;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            border-top: 1px solid #ececec;
+        }
+
+        footer strong {
+            color: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Arias ERP</h1>
+            <p>Verificação de endereço de e-mail</p>
+        </header>
+        <main>
+            <h2>Seu código de verificação</h2>
+            <p> Utilize o código abaixo para concluir a verificação da sua conta. </p>
+            <div id="token" class="token-box"> {{ token }} </div>
+        </main>
+        <footer> Este e-mail foi enviado automaticamente pelo <strong>Arias ERP</strong>.<br> Caso você não tenha
+            solicitado este código, ignore esta mensagem. </footer>
+    </div>
+</body>
+
+</html>

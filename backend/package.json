@@ -4,14 +4,13 @@
   "description": "Backend do MVP SaaS ERP",
   "main": "src/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/index.js",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "jest --verbose --passWithNoTests",
-    "test:watch": "jest --watch --passWithNoTests",
-    "test:coverage": "jest --coverage --passWithNoTests",
-    "test:unit": "jest --testPathPatterns='\\.unit\\.test\\.ts$' --passWithNoTests",
-    "test:integration": "jest --testPathPatterns='\\.integration\\.test\\.ts$' --passWithNoTests"
+    "db:generate": "dotenv -- kysely-codegen --out-file src/platform/database/db.ts",
+    "db:migrate": "kysely migrate:latest",
+    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --verbose -c jest.config.unit.mjs --passWithNoTests --detectOpenHandles",
+    "test:integration": "NODE_OPTIONS='--import tsx/esm --experimental-vm-modules' jest --verbose -c jest.config.integration.mjs --passWithNoTests --detectOpenHandles"
   },
   "keywords": [],
   "author": "RicardoMC310",
@@ -25,15 +24,38 @@
   },
   "type": "module",
   "devDependencies": {
+    "@jest/globals": "^30.4.1",
     "@tsconfig/recommended": "^1.0.13",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/jest": "^30.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.1.1",
-    "jest": "^30.4.2",
+    "@types/nodemailer": "^8.0.1",
+    "@types/pg": "^8.20.0",
+    "dotenv-cli": "^11.0.0",
+    "jest": "^29.7.0",
+    "kysely-codegen": "^0.20.0",
+    "kysely-ctl": "^0.21.0",
+    "testcontainers": "^12.0.4",
     "ts-jest": "^29.4.11",
-    "typescript": "^7.0.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "handlebars": "^4.7.9",
+    "jsonwebtoken": "^9.0.3",
+    "kysely": "^0.29.3",
+    "nodemailer": "^9.0.3",
+    "pg": "^8.22.0",
+    "uuid": "^14.0.1",
+    "zod": "^4.4.3"
   }
 }
