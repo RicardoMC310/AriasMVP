@@ -61,6 +61,15 @@ describe("Teste do caso de uso de login", () => {
         await expect(useCase.execute(body)).rejects.toThrow(UserNotVerifiedException);
     });
 
+    it("Deve bloquear login de usuário bloqueados", async () => {
+        const body = {
+            email: "ricardo3@gmail.com",
+            password: "12345678"
+        }
+
+        await expect(useCase.execute(body)).rejects.toThrow(UserNotVerifiedException);
+    });
+
 });
 
 class TestFakeAuthUserFinder implements IAuthUserFinder {
@@ -79,6 +88,13 @@ class TestFakeAuthUserFinder implements IAuthUserFinder {
             .withPasswordHash("hashed:12345678")
             .withUsername("ricardo")
             .withState(UserState.VERIFICATION_PENDING)
+            .build(),
+        UserEntityBuilder.create()
+            .withId("101012")
+            .withEmail("ricardo3@gmail.com")
+            .withPasswordHash("hashed:12345678")
+            .withUsername("ricardo")
+            .withState(UserState.BLOCKED)
             .build()
     ];
 
