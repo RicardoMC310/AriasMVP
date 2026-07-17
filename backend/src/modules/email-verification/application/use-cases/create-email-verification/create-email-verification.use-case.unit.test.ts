@@ -35,6 +35,27 @@ describe("Teste do caso de uso de criar email de verificação", () => {
         expect(emailEntity.id).toBeDefined();
     });
 
+    it("Deve chamar os observers ao criar email de verificação", async () => {
+        const observer = {
+            execute: jest.fn<(dto: { email: string, token: string }) => Promise<void>>()
+        };
+
+        useCase.registerObserver(observer);
+
+        const body = {
+            email: "ricardo@gmail.com",
+            userId: crypto.randomUUID()
+        };
+
+        await useCase.execute(body);
+
+        expect(observer.execute).toHaveBeenCalledTimes(1);
+        expect(observer.execute).toHaveBeenCalledWith({
+            email: body.email,
+            token: "token"
+        });
+    });
+
     it("Deve lançar exceção se o email for inválido", async () => {
         const email = "email-invalido";
         const userId = "<UUID>";
@@ -91,5 +112,7 @@ class TestFakeRepository implements IEmailVerificationRepository {
 
         this.emails.push(emailVerificationEntity);
     }
+
+    update = jest.fn(async () => { return false });
 
 }
