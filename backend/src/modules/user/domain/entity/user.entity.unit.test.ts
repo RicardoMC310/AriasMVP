@@ -85,4 +85,16 @@ describe("Testes da entidade de usuário", () => {
         expect(userEntity.state).toBe(UserState.BLOCKED);
     });
 
+    it("Deve permitir bloquear um usuário já bloqueado sem erro", () => {
+        const userEntity = UserEntityBuilder.create()
+            .withState(UserState.BLOCKED)
+            .withEmail("ricardo@gmal.com")
+            .withUsername("Ricardo")
+            .build();
+
+        userEntity.block();
+
+        expect(userEntity.state).toBe(UserState.BLOCKED);
+    });
+
 });
