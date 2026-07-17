@@ -26,7 +26,7 @@ export default class AuthController {
             sameSite: "lax",
             signed: true,
             path: "/",
-            secure: loadEnv("COOKIE_SECURE") === "true",
+            secure: loadEnv("COOKIE_SECURE", "false") === "true",
             maxAge: this.MILLISECONDS * this.SECONDS * this.MINUTES
         });
 
