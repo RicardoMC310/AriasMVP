@@ -1,9 +1,10 @@
-import { describe, it, beforeEach, expect, jest } from "@jest/globals";
+import { describe, it, beforeEach, expect, jest, afterEach } from "@jest/globals";
 import IEmailVerificationRepository from "../../../domain/repository/email-verification.repository.js";
 import EmailVerificationEntity from "../../../domain/entities/email-verification.entity.js";
 import IEmailVerificationCodeGenerator from "../../port/code-generator.port.js";
 import ResendEmailVerificationUseCase from "./resend-email-verification.use-case.js";
 import EmailVerificationEntityBuilder from "../../../domain/builder/email-verification.builder.js";
+import InvalidEmailException from "../../../../../core/domain/exception/invalid-email.exception.js";
 
 describe("Teste da regra de negócio de reenviar email", () => {
     let repository: TestFakeRepository;
@@ -27,6 +28,10 @@ describe("Teste da regra de negócio de reenviar email", () => {
         ]);
 
         useCase = new ResendEmailVerificationUseCase(repository, codeGenerator);
+    });
+
+    afterEach(() => {
+        repository.emails = [];
     });
 
     it("Deve reenviar um email normalmente caso registro já exista", async () => {
@@ -70,6 +75,43 @@ describe("Teste da regra de negócio de reenviar email", () => {
 
     });
 
+    it("Deve falhar se email inválido for passado", async () => {
+        const body = {
+            email: "ricardo",
+            userId: crypto.randomUUID()
+        };
+
+        await expect(useCase.execute(body)).rejects.toThrow(InvalidEmailException);
+
+        expect(repository.emails).toHaveLength(1);
+    });
+
+    it("Deve falhar se o gerador de código falhar", async () => {
+        const body = {
+            email: "ricardo",
+            userId: crypto.randomUUID()
+        };
+
+        codeGenerator.shouldFail = true;
+
+        await expect(useCase.execute(body)).rejects.toThrow();
+
+        expect(repository.emails).toHaveLength(1);
+    }); 
+
+    it("Deve falhar se o repository falhar", async () => {
+        const body = {
+            email: "ricardo",
+            userId: crypto.randomUUID()
+        };
+
+        repository.shouldFail = true;
+
+        await expect(useCase.execute(body)).rejects.toThrow();
+
+        expect(repository.emails).toHaveLength(1);
+    })
+
 });
 
 class TestFakeCodeGenerator implements IEmailVerificationCodeGenerator {
@@ -92,7 +134,7 @@ class TestFakeCodeGenerator implements IEmailVerificationCodeGenerator {
 class TestFakeRepository implements IEmailVerificationRepository {
 
     emails: EmailVerificationEntity[] = [];
-    shouldFailSave = false;
+    shouldFail = false;
 
     save = jest.fn<(emailVerificationEntity: EmailVerificationEntity) => Promise<void>>();
 
@@ -101,6 +143,8 @@ class TestFakeRepository implements IEmailVerificationRepository {
     }
 
     async update(emailVerificationEntity: EmailVerificationEntity): Promise<boolean> {
+        if(this.shouldFail) throw new Error("Email Verification Repository Failed");
+
         const index = this.emails.findIndex(email => email.email === emailVerificationEntity.email);
 
         if (index === -1)
