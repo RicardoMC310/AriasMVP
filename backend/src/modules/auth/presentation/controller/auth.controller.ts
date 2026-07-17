@@ -2,34 +2,35 @@ import { Request, Response } from "express";
 import AuthLoginUseCase from "../../application/use-case/login/login.use-case.js";
 import { AuthLoginRequestDTOSchema } from "../../application/dto/in/login/login-request.dto.js";
 import unwrapZodResult from "../../../../platform/zod/unwrap-result.zod.js";
+import loadEnv from "../../../../platform/env/load.env.js";
 import createHttpResponse from "../../../../platform/express/create-response.express.js";
 
 export default class AuthController {
 
     private readonly MILLISECONDS = 1000;
     private readonly SECONDS = 60;
-    private readonly MINUTES = 60;
-    private readonly HOURS = 16;
+    private readonly MINUTES = 15;
 
     constructor(
-        private readonly authLoginUseCase: AuthLoginUseCase
-    ) {}
+        private readonly loginUseCase: AuthLoginUseCase
+    ) { }
 
     login = async (req: Request, res: Response) => {
-        const resultParse = AuthLoginRequestDTOSchema.safeParse(req.body);
-        const body = unwrapZodResult(resultParse);
+        const bodyRaw = AuthLoginRequestDTOSchema.safeParse(req.body);
+        const body = unwrapZodResult(bodyRaw);
 
-        const data = await this.authLoginUseCase.execute(body);
+        const { token } = await this.loginUseCase.execute(body);
 
-        res.cookie("accessToken", data.token, {
+        res.cookie("accessToken", token, {
             httpOnly: true,
             sameSite: "lax",
+            signed: true,
             path: "/",
-            maxAge: this.MILLISECONDS * this.SECONDS * this.MINUTES * this.HOURS,
-            signed: true
-        })
+            secure: loadEnv("COOKIE_SECURE") === "true",
+            maxAge: this.MILLISECONDS * this.SECONDS * this.MINUTES
+        });
 
-        const response = createHttpResponse("login successfuly", 200);
+        const response = createHttpResponse("Login Successfuly");
         res.status(response.statusCode).json(response);
     }
 
