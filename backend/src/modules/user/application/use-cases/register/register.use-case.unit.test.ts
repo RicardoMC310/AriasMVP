@@ -27,7 +27,7 @@ describe("Testes do caso de uso de registro de usuário", () => {
         const body = {
             username: "ricardo",
             email: "ricardo@gmail.com",
-            password: "Rm30042009#"
+            password: "Au3722437#"
         };
 
         await expect(registerUseCase.execute(body))
@@ -45,7 +45,7 @@ describe("Testes do caso de uso de registro de usuário", () => {
         const body = {
             username: "ricardo",
             email: "ricardo",
-            password: "Rm30042009#"
+            password: "Au3722437#"
         };
 
         await expect(registerUseCase.execute(body)).rejects.toThrow(InvalidEmailException);
@@ -78,12 +78,34 @@ describe("Testes do caso de uso de registro de usuário", () => {
         const body = {
             username: "ricardo",
             email: "ricardo@gmail.com",
-            password: "Rm30042009#"
+            password: "Au3722437#"
         };
 
         await expect(registerUseCase.execute(body)).rejects.toThrow(UserAlreadyRegisteredException);
 
         expect(testUserRepository.users).toHaveLength(0);
+    });
+
+    it("Deve notificar os observers ao registrar usuário", async () => {
+        const observer = {
+            execute: jest.fn<(dto : { email: string, userId: string }) => Promise<void>>()
+        };
+
+        registerUseCase.registerObserver(observer);
+
+        const body = {
+            username: "ricardo",
+            email: "ricardo@gmail.com",
+            password: "Au3722437#"
+        };
+
+        await registerUseCase.execute(body);
+
+        expect(observer.execute).toHaveBeenCalledTimes(1);
+        expect(observer.execute).toHaveBeenCalledWith({
+            email: body.email,
+            userId: testUserRepository.users[0]!.id
+        });
     });
 
 });
