@@ -9,7 +9,7 @@ export default class NodemailerMailerTransporter implements IMailerTransporter {
     ) {}
 
     async sendMail(mailEntity: MailEntity): Promise<void> {
-        this.transporter.sendMail({
+        await this.transporter.sendMail({
             from: mailEntity.from,
             to: mailEntity.to,
             subject: mailEntity.subject,
