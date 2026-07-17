@@ -18,6 +18,7 @@ describe("Teste de integração com kysely com o módulo de verificação de ema
         kyselyEmailVerificationRepository = new KyselyEmailVerificationRepository(db);
 
         await db.deleteFrom("email_verification").execute();
+        await db.deleteFrom("users").execute();
     });
 
     afterEach(async () => {
