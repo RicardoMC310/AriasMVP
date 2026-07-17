@@ -8,12 +8,15 @@ environment:
 
 dependencies:
   build_runner: ^2.15.1
+  cookie_jar: ^4.0.9
   dio: ^5.10.0
+  dio_cookie_manager: ^3.4.0
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.2
   flutter_secure_storage: ^10.3.1
   go_router: ^17.3.0
+  path_provider: ^2.1.6
   riverpod_annotation: ^4.0.3
 dev_dependencies:
   riverpod_generator: ^4.0.4
