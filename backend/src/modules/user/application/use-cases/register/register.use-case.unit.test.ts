@@ -96,7 +96,7 @@ class TestFakeUserRepository implements IUserRepository {
         this.users.push(userEntity);
     }
 
-    findUserByEmail = jest.fn(async () => { return null });
+    findUserByEmail = jest.fn<(email: string) => Promise<UserEntity | null>>(async () => { return null });
 
 }
 
