@@ -515,9 +515,10 @@ backend/
 ├── tsconfig.json
 └── .env.example
 ```
-
 ---
 
 ## License
 
-MIT
+![Static Badge](https://img.shields.io/badge/MIT-%2523?style=flat-square&logoColor=%23FFF&color=%2339db18)
+
+
