@@ -1,18 +1,17 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import IEmailVerificationCodeGenerator from "../../port/code-generator.port.js";
-import IEmailVerificationRepository from "../../../domain/repository/email-verification.repository.js";
-import EmailVerificationEntity from "../../../domain/entities/email-verification.entity.js";
 import CreateEmailVerificationUseCase from "./create-email-verification.use-case.js";
 import InvalidEmailException from "../../../../../core/domain/exception/invalid-email.exception.js";
+import TestFakeEmailVerificationRepository from "../../../tests/fakes/fake-email-verification-repository.fake.js";
+import TestFakeEmailVerificationCodeGenerator from "../../../tests/fakes/fake-code-generator.fake.js";
 
 describe("Teste do caso de uso de criar email de verificação", () => {
-    let codeGenerator: TestFakeCodeGenerator;
-    let repository: TestFakeRepository;
+    let codeGenerator: TestFakeEmailVerificationCodeGenerator;
+    let repository: TestFakeEmailVerificationRepository;
     let useCase: CreateEmailVerificationUseCase;
 
     beforeEach(() => {
-        codeGenerator = new TestFakeCodeGenerator();
-        repository = new TestFakeRepository();
+        codeGenerator = new TestFakeEmailVerificationCodeGenerator();
+        repository = new TestFakeEmailVerificationRepository();
         useCase = new CreateEmailVerificationUseCase(codeGenerator, repository);
     });
 
@@ -28,7 +27,7 @@ describe("Teste do caso de uso de criar email de verificação", () => {
 
         expect(emailEntity.email).toBe(email);
         expect(emailEntity.userId).toBe(userId);
-        expect(emailEntity.codeHash).toBe("hashed:token");
+        expect(emailEntity.codeHash.length).toBeGreaterThanOrEqual(8);
         expect(emailEntity.verified).toBe(false);
         expect(emailEntity.attempts).toBe(0);
         expect(emailEntity.expiresAt.getTime()).toBeGreaterThan(Date.now());
@@ -36,8 +35,12 @@ describe("Teste do caso de uso de criar email de verificação", () => {
     });
 
     it("Deve chamar os observers ao criar email de verificação", async () => {
+        let code: string;
+
         const observer = {
-            execute: jest.fn<(dto: { email: string, token: string }) => Promise<void>>()
+            execute: jest.fn<(dto: { email: string, token: string }) => Promise<void>>(async (dto: { email: string, token: string }) => {
+                code = dto.token;
+            })
         };
 
         useCase.registerObserver(observer);
@@ -52,7 +55,7 @@ describe("Teste do caso de uso de criar email de verificação", () => {
         expect(observer.execute).toHaveBeenCalledTimes(1);
         expect(observer.execute).toHaveBeenCalledWith({
             email: body.email,
-            token: "token"
+            token: code!
         });
     });
 
@@ -66,7 +69,7 @@ describe("Teste do caso de uso de criar email de verificação", () => {
     });
 
     it("Deve lançar exceção se o repositório falhar ao salvar", async () => {
-        repository.shouldFailSave = true;
+        repository.shouldFail = true;
 
         const email = "ricardo@gmail.com";
         const userId = "<UUID>";
@@ -83,36 +86,17 @@ describe("Teste do caso de uso de criar email de verificação", () => {
         await expect(useCase.execute({ email, userId })).rejects.toThrow("Code generation failed");
     });
 
-});
-
-class TestFakeCodeGenerator implements IEmailVerificationCodeGenerator {
-
-    shouldFail = false;
-
-    generator(length: number): { token: string; hash: string; } {
-        if (this.shouldFail) throw new Error("Code generation failed");
-
-        return {
-            token: "token",
-            hash: "hashed:token"
+    it("Deve gerar exatamente um código de 8 dígitos", async () => {
+        const body = {
+            email: "ricardo@gmail.com",
+            userId: crypto.randomUUID()
         };
-    }
 
-    verify = jest.fn<(hash: string, text: string) => boolean>();
+        await useCase.execute(body);
 
-}
+        expect(repository.emails).toHaveLength(1);
 
-class TestFakeRepository implements IEmailVerificationRepository {
+        expect(repository.emails[0]!.codeHash).toHaveLength(8 + ("hashed:".length));
+    });
 
-    emails: EmailVerificationEntity[] = [];
-    shouldFailSave = false;
-
-    async save(emailVerificationEntity: EmailVerificationEntity): Promise<void> {
-        if (this.shouldFailSave) throw new Error("Repository save failed");
-
-        this.emails.push(emailVerificationEntity);
-    }
-
-    update = jest.fn(async () => { return false });
-
-}
+});

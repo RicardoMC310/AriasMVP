@@ -4,12 +4,12 @@ import LoginPolicy from "../../../domain/policies/login.policy.js";
 import UserActiveSpecification from "../../../domain/specifications/user-verified.specification.js";
 import AuthCredentialsInvalidException from "../../../domain/exception/credentials-invalid.exception.js";
 import AuthLoginRequestDTO from "../../dto/in/login/login-request.dto.js";
-import AuthLoginResponseDTO from "../../dto/out/login-response.dto.js";
 import IAuthHasher from "../../port/hasher.port.js";
 import IAuthTokenGenerator from "../../port/token-generator.port.js";
 import IAuthUserFinder from "../../port/user-finder.port.js";
 import UserNotVerifiedException from "../../../domain/exception/user-not-verified.exception.js";
 import UserEntity from "../../../../user/domain/entity/user.entity.js";
+import AuthLoginResponseDTO from "../../dto/out/login/login-response.dto.js";
 
 export default class AuthLoginUseCase {
 

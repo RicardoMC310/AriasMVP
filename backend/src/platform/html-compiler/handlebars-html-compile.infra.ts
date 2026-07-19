@@ -3,9 +3,8 @@ import { access } from "node:fs/promises";
 import { constants } from "node:fs";
 import { join } from "node:path";
 import Handlebars from "handlebars";
-import IMailerHtmlCompile from "../../application/port/compile-html.port.js";
 
-export default class HandlebarsMailerHtmlCompile implements IMailerHtmlCompile {
+export default class HandlebarsMailerHtmlCompile {
 
     private readonly templateDir = join(
         process.cwd(),
