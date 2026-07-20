@@ -18,9 +18,9 @@ export default function makeRouter(db: Kysely<DB>): Router {
     const authRouter = authRouterFactory(db);
     const emailVerificationRouter = emailVerificationRouterFactory(db);
 
-    router.use(userRouter.prefix, userRouter.router);
-    router.use(authRouter.prefix, authRouter.router);
-    router.use(emailVerificationRouter.prefix, emailVerificationRouter.router);
+    router.use(userRouter.router);
+    router.use(authRouter.router);
+    router.use(emailVerificationRouter.router);
 
     return router;
 }
