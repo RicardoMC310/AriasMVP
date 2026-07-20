@@ -10,11 +10,6 @@ import { VerifyEmailVerificationRequestDTOSchema } from "../../../modules/email-
 export default function emailVerificationRouterFactory(db: Kysely<DB>): HttpController {
     const controller = emailVerificationControllerFactory(db);
 
-    // const router = express.Router();
-
-    // router.post("/resend", controller.resend);
-    // router.post("/verify", controller.verify);
-
     const registry = makeRegisterRouter();
 
     registry.group("/auth/email-verification", (registry: Registry) => {
@@ -33,7 +28,9 @@ export default function emailVerificationRouterFactory(db: Kysely<DB>): HttpCont
                 }),
 
                 responses: responses(
-                    response(200, "Check your email inbox", "SUCCESSFULY")
+                    response(200, "Check your email inbox", "SUCCESSFULY"),
+                    response(400, "Email Already Verified", "ALREADY_EXISTS"),
+                    response(404, "Verification Not Found", "NOT_FOUND")
                 )
 
             }
@@ -55,7 +52,15 @@ export default function emailVerificationRouterFactory(db: Kysely<DB>): HttpCont
                 }),
 
                 responses: responses(
-                    response(200, "User Verified", "SUCCESSFULY")
+                    response(200, "User Verified", "SUCCESSFULY"),
+                    response(401, "Verification Failed", "AUTENTICATION_ERROR", {
+                        description: `
+                            Possible error codes:
+                            - EXPIRED: Verification has expired
+                            - LIMIT_EXCEEDED: Too many verification attempts
+                        `
+                    }),
+                    response(404, "Verification Not Found", "NOT_FOUND")
                 )
 
             }
