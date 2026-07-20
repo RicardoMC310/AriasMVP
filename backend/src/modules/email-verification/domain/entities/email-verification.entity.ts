@@ -60,7 +60,7 @@ export default class EmailVerificationEntity {
         this._attempts++;
     }
 
-    unsureNotExpired() {
+    ensureNotExpired() {
         if (this._expiresAt.getTime() < Date.now()) 
             throw new ExpiredEmailVerificationException();
     }
