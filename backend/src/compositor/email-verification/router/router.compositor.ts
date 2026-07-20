@@ -10,6 +10,7 @@ export default function emailVerificationRouterFactory(db: Kysely<DB>): HttpCont
     const router = express.Router();
 
     router.post("/resend", controller.resend);
+    router.post("/verify", controller.verify);
 
     return {
         router,
