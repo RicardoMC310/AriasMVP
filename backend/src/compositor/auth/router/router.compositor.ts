@@ -19,7 +19,7 @@ export default function authRouterFactory(db: Kysely<DB>): HttpController {
             path: "/login",
 
             docs: {
-                
+
                 description: "Login in to the System",
 
                 body: body(AuthLoginRequestDTOSchema, true, {
@@ -36,7 +36,15 @@ export default function authRouterFactory(db: Kysely<DB>): HttpController {
                                 description: "Authentication cookie via accessToken"
                             }
                         }
-                    })
+                    }),
+                    response(401, "Autenticate Failed", "AUTENTICATION_ERROR", {
+                        description: `
+                            Possible error codes:
+                            - INVALID_CREDENTIALS: Credentials Invalid
+                            - NOT_VERIFIED: User with unverified email
+                        `
+                    }),
+                    response(404, "User not found", "NOT_FOUND"),
                 )
 
             }
