@@ -30,7 +30,7 @@ export default class AuthController {
             maxAge: this.MILLISECONDS * this.SECONDS * this.MINUTES
         });
 
-        const response = createHttpResponse("Login Successfuly");
+        const response = createHttpResponse("Login Successfuly", "SUCCESSFULY");
         res.status(response.statusCode).json(response);
     }
 
