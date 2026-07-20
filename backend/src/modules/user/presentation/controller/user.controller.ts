@@ -16,7 +16,7 @@ export default class UserController {
 
         await this.registerUserUseCase.execute(body);
 
-        const response = createHttpResponse("User Registered. Check your email inbox");
+        const response = createHttpResponse("User Registered. Check your email inbox", "SUCCESSFULY");
         res.status(response.statusCode).json(response);
     }
 
