@@ -1,8 +1,7 @@
-import { Request, Response } from "express";
 import RegisterUserUseCase from "../../application/use-cases/register/register.use-case.js";
-import { RegisterUserDTOSchema } from "../../application/dto/register/register.dto.js";
-import unwrapResult from "../../../../platform/zod/unwrap-result.zod.js";
 import createHttpResponse from "../../../../platform/express/create-response.express.js";
+import HttpContext from "../../../../platform/express/http-context.express.js";
+import RegisterUserDTO from "../../application/dto/register/register.dto.js";
 
 export default class UserController {
 
@@ -10,14 +9,11 @@ export default class UserController {
         private readonly registerUserUseCase: RegisterUserUseCase
     ) {}
 
-    register = async (req: Request, res: Response) => {
-        const bodyRaw = RegisterUserDTOSchema.safeParse(req.body);
-        const body = unwrapResult(bodyRaw);
-
-        await this.registerUserUseCase.execute(body);
+    register = async (ctx: HttpContext<RegisterUserDTO>) => {
+        await this.registerUserUseCase.execute(ctx.body);
 
         const response = createHttpResponse("User Registered. Check your email inbox", "SUCCESSFULY");
-        res.status(response.statusCode).json(response);
+        ctx.res.status(response.statusCode).json(response);
     }
 
 }
