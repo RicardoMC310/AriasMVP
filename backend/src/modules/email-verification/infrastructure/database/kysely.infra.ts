@@ -2,6 +2,7 @@ import { Kysely } from "kysely";
 import IEmailVerificationRepository from "../../domain/repository/email-verification.repository.js";
 import { DB } from "../../../../platform/database/db.js";
 import EmailVerificationEntity from "../../domain/entities/email-verification.entity.js";
+import EmailVerificationEntityBuilder from "../../domain/builder/email-verification.builder.js";
 
 export default class KyselyEmailVerificationRepository implements IEmailVerificationRepository {
     
@@ -41,6 +42,26 @@ export default class KyselyEmailVerificationRepository implements IEmailVerifica
             .where("email", "=", emailVerificationEntity.email)
             .execute();
         return true;
+    }
+
+    async findByEmail(email: string): Promise<EmailVerificationEntity | null> {
+        const found = await this.db.selectFrom("email_verification")
+            .selectAll()
+            .where("email", "=", email)
+            .executeTakeFirst();
+
+        if (found === undefined)
+            return null;
+
+        return EmailVerificationEntityBuilder.create()
+            .withId(found.id)
+            .withAttempts(found.attempts)
+            .withCodeHash(found.code_hash)
+            .withEmail(found.email)
+            .withExpiresAt(found.expiresAt)
+            .withUserId(found.user_id)
+            .withVerified(found.verified ?? false)
+            .build();
     }
 
 }
