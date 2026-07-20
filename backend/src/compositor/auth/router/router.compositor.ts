@@ -1,18 +1,51 @@
 import { Kysely } from "kysely";
 import { DB } from "../../../platform/database/db.js";
-import express from "express";
 import authControllerFactory from "../controller/controller.compositor.js";
 import { HttpController } from "../../../platform/express/http-controller.express.js";
+import makeRegisterRouter, { body, Registry, response, responses } from "../../../platform/express/register-router.express.js";
+import { AuthLoginRequestDTOSchema } from "../../../modules/auth/application/dto/in/login/login-request.dto.js";
+import z from "zod";
 
 export default function authRouterFactory(db: Kysely<DB>): HttpController {
     const controller = authControllerFactory(db);
 
-    const router = express.Router();
+    const registry = makeRegisterRouter();
 
-    router.post("/login", controller.login);
+    registry.group("/auth", (registry: Registry) => {
+
+        registry.registerRoutePath({
+
+            handler: controller.login,
+            path: "/login",
+
+            docs: {
+                
+                description: "Login in to the System",
+
+                body: body(AuthLoginRequestDTOSchema, true, {
+                    email: "example@gmail.com",
+                    password: "StrongPassword123!"
+                }),
+
+                responses: responses(
+                    response(200, "Login Successfuly", "SUCCESSFULY", {
+                        headers: {
+                            "Set-Cookie": {
+                                name: "Set-Cookie",
+                                schema: z.string(),
+                                description: "Authentication cookie via accessToken"
+                            }
+                        }
+                    })
+                )
+
+            }
+
+        }).post();
+
+    });
 
     return {
-        router,
-        prefix: "/auth"
+        router: registry.getRouter()
     };
 }
