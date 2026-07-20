@@ -1,6 +1,5 @@
 import Email from "../../../../../core/domain/vo/email.vo.js";
 import UserEntity from "../../../domain/entity/user.entity.js";
-import UserNotFoundException from "../../../domain/exception/user-not-found.exception.js";
 import IUserRepository from "../../../domain/repository/user.repository.js";
 
 export default class FindUserByEmailUseCase {
@@ -9,7 +8,7 @@ export default class FindUserByEmailUseCase {
         private readonly userRepository: IUserRepository
     ) {}
 
-    async findUserByEmail(email: string): Promise<UserEntity | null> {
+    async execute(email: string): Promise<UserEntity | null> {
         this.validateInput(email);
 
         const userFound = await this.userRepository.findUserByEmail(email);
@@ -18,7 +17,7 @@ export default class FindUserByEmailUseCase {
     }
 
     private validateInput(email: string) {
-        Email.isValid(email);
+        Email.ensureValid(email);
     }
 
 }
