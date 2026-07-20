@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import createHttpResponse from "../create-response.express.js";
 import DomainException, { CategoryError } from "../../../core/domain/exception/domain.exception.js";
-import { STATUS_CODES } from "http";
 
 const mapToHttpCode: Record<CategoryError, number> = {
     [CategoryError.AUTENTICATE]: 401,
