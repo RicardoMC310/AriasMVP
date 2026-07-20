@@ -63,7 +63,7 @@ function mapReponses(docs: ConfigRouter["docs"]) {
                     example: {
                         message: body.message,
                         code: body.code,
-                        statusCode: 200,
+                        statusCode: Number(status),
                         data: body.dataExample,
                         meta: body.metaExample
                     }
