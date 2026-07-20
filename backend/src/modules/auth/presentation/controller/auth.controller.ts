@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import AuthLoginUseCase from "../../application/use-case/login/login.use-case.js";
-import { AuthLoginRequestDTOSchema } from "../../application/dto/in/login/login-request.dto.js";
+import AuthLoginRequestDTO, { AuthLoginRequestDTOSchema } from "../../application/dto/in/login/login-request.dto.js";
 import unwrapResult from "../../../../platform/zod/unwrap-result.zod.js";
 import loadEnv from "../../../../platform/env/load.env.js";
 import createHttpResponse from "../../../../platform/express/create-response.express.js";
+import HttpContext from "../../../../platform/express/http-context.express.js";
 
 export default class AuthController {
 
@@ -15,13 +16,10 @@ export default class AuthController {
         private readonly loginUseCase: AuthLoginUseCase
     ) { }
 
-    login = async (req: Request, res: Response) => {
-        const bodyRaw = AuthLoginRequestDTOSchema.safeParse(req.body);
-        const body = unwrapResult(bodyRaw);
+    login = async (context: HttpContext<AuthLoginRequestDTO>) => {
+        const { token } = await this.loginUseCase.execute(context.body);
 
-        const { token } = await this.loginUseCase.execute(body);
-
-        res.cookie("accessToken", token, {
+        context.res.cookie("accessToken", token, {
             httpOnly: true,
             sameSite: "lax",
             signed: true,
@@ -31,7 +29,7 @@ export default class AuthController {
         });
 
         const response = createHttpResponse("Login Successfuly", "SUCCESSFULY");
-        res.status(response.statusCode).json(response);
+        context.res.status(response.statusCode).json(response);
     }
 
 }
