@@ -13,12 +13,12 @@ export default class Email {
     }
 
     static create(value: string): Email {
-        Email.isValid(value);
+        Email.ensureValid(value);
 
         return new Email(value);
     }
 
-    static isValid(value: string) {
+    static ensureValid(value: string) {
         const result = emailSchema.safeParse({ value });
 
         if (!result.success) {
