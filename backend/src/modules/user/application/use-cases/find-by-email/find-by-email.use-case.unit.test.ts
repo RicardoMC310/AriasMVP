@@ -24,7 +24,7 @@ describe("Teste do caso de uso de procurar usuário por email", () => {
     it("Deve retornar usuário pelo email", async () => {
         const email = "ricardo@gmail.com";
 
-        const user = await useCase.findUserByEmail(email);
+        const user = await useCase.execute(email);
 
         expect(user).toBeDefined();
     });
@@ -32,7 +32,7 @@ describe("Teste do caso de uso de procurar usuário por email", () => {
     it("Deve retornar null para usuário não encontrado", async () => {
         const email = "ricardo1@gmail.com";
 
-        const user = await useCase.findUserByEmail(email);
+        const user = await useCase.execute(email);
 
         expect(user).toBeNull();
     });
