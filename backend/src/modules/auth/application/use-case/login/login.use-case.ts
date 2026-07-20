@@ -34,11 +34,11 @@ export default class AuthLoginUseCase {
     }
 
     private validateInput(dto: AuthLoginRequestDTO) {
-        Email.isValid(dto.email);
+        Email.ensureValid(dto.email);
     }
 
     private async findUser(email: string): Promise<UserEntity> {
-        const userFound = await this.userFinder.findUserByEmail(email);
+        const userFound = await this.userFinder.execute(email);
 
         if (userFound === null)
             throw new UserNotFoundException();
