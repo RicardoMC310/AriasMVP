@@ -4,7 +4,7 @@ import CreateEmailVerificationDTO from "../../dto/in/create-email-verification/c
 import { v7 as uuidv7 } from "uuid";
 import IEmailVerificationCodeGenerator from "../../port/code-generator.port.js";
 import IEmailVerificationRepository from "../../../domain/repository/email-verification.repository.js";
-import EmailVerificationObserver from "../../port/mailer-send-observer.port.js";
+import IEmailVerificationUpdateObserver from "../../port/observers/email-verification-update-observer.port.js";
 
 export default class CreateEmailVerificationUseCase {
 
@@ -13,7 +13,7 @@ export default class CreateEmailVerificationUseCase {
     private readonly MINUTES = 30;
     private readonly TOKEN_LENGTH = 8;
 
-    private observers: EmailVerificationObserver[] = [];
+    private observers: IEmailVerificationUpdateObserver[] = [];
 
     constructor(
         private readonly codeGenerator: IEmailVerificationCodeGenerator,
@@ -42,19 +42,15 @@ export default class CreateEmailVerificationUseCase {
         await this.notifyAll(dto.email, token);
     }
 
-    registerObserver(observer: EmailVerificationObserver) {
+    registerObserver(observer: IEmailVerificationUpdateObserver) {
         this.observers.push(observer);
     }
 
     private validate(dto: CreateEmailVerificationDTO) {
-        Email.isValid(dto.email);
+        Email.ensureValid(dto.email);
     }
 
     private async notifyAll(email: string, token: string) {
-        await Promise.all([
-            this.observers.map(observer => {
-                observer.execute({email, token});
-            })
-        ]);
+        await Promise.all(this.observers.map(observer => observer.execute({ email, token })));
     }
 }
