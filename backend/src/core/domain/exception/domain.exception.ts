@@ -1,4 +1,4 @@
-export enum DetailError {
+export enum CategoryError {
     NOT_FOUND,
     AUTHORIZATION,
     AUTENTICATE,
@@ -11,8 +11,9 @@ export default abstract class DomainException extends Error {
 
     constructor(
         message: string,
-        public detail: DetailError,
-        public data?: Record<string, unknown>
+        public detail: CategoryError,
+        public code: string,
+        public meta?: Record<string, unknown>
     ) {
         super(message);
     }
