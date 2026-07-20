@@ -21,6 +21,8 @@ export default class TestFakeEmailVerificationCodeGenerator implements IEmailVer
         };
     }
 
-    verify = jest.fn<(hash: string, text: string) => boolean>();
+    verify(hash: string, token: string): boolean {
+        return ("hashed:"+token) === hash;
+    }
 
 }
