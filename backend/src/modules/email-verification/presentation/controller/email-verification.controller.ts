@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import createHttpResponse from "../../../../platform/express/create-response.express.js";
-import { ResendEmailVerificationDTOSchema } from "../../application/dto/in/resend-email-verification/resend-email-verification.dto.js";
+import ResendEmailVerificationDTO, { ResendEmailVerificationDTOSchema } from "../../application/dto/in/resend-email-verification/resend-email-verification.dto.js";
 import unwrapResult from "../../../../platform/zod/unwrap-result.zod.js";
 import ResendEmailVerificationUseCase from "../../application/use-cases/resend-email-verification/resend-email-verification.use-case.js";
-import { VerifyEmailVerificationRequestDTOSchema } from "../../application/dto/in/verify-email-verifcation/verify-email-verification.dto.js";
+import VerifyEmailVerificationRequestDTO, { VerifyEmailVerificationRequestDTOSchema } from "../../application/dto/in/verify-email-verifcation/verify-email-verification.dto.js";
 import VerifyEmailVerificationUseCase from "../../application/use-cases/verify-email-verification/verify-email-verification.use-case.js";
+import HttpContext from "../../../../platform/express/http-context.express.js";
 
 export default class EmailVericationController {
 
@@ -13,24 +14,18 @@ export default class EmailVericationController {
         private readonly verifyEmailVerificarionUseCase: VerifyEmailVerificationUseCase
     ) {}
 
-    resend = async (req: Request, res: Response) => {
-        const bodyRaw = ResendEmailVerificationDTOSchema.safeParse(req.body);
-        const body = unwrapResult(bodyRaw);
-
-        await this.resendEmailVerificationUseCase.execute(body);
+    resend = async (context: HttpContext<ResendEmailVerificationDTO>) => {
+        await this.resendEmailVerificationUseCase.execute(context.body);
 
         const response = createHttpResponse("Check your email inbox", "SUCCESSFULY");
-        res.status(response.statusCode).json(response);
+        context.res.status(response.statusCode).json(response);
     }
 
-    verify = async (req: Request, res: Response) => {
-        const bodyRaw = VerifyEmailVerificationRequestDTOSchema.safeParse(req.body);
-        const body = unwrapResult(bodyRaw);
-
-        await this.verifyEmailVerificarionUseCase.execute(body);
+    verify = async (context: HttpContext<VerifyEmailVerificationRequestDTO>) => {
+        await this.verifyEmailVerificarionUseCase.execute(context.body);
 
         const response = createHttpResponse("User Verified", "SUCCESSFULY");
-        res.status(response.statusCode).json(response);
+        context.res.status(response.statusCode).json(response);
     }
 
 }
