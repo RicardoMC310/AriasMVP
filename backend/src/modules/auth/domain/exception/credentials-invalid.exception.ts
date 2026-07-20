@@ -1,9 +1,9 @@
-import DomainException, { DetailError } from "../../../../core/domain/exception/domain.exception.js";
+import DomainException, { CategoryError } from "../../../../core/domain/exception/domain.exception.js";
 
 export default class AuthCredentialsInvalidException extends DomainException {
 
     constructor() {
-        super("Credentials Invalid", DetailError.AUTENTICATE);
+        super("Credentials Invalid", CategoryError.AUTENTICATE, "INVALID_CREDENTIALS");
     }
 
 }
