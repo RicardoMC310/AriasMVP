@@ -29,4 +29,15 @@ export default class TestFakeEmailVerificationRepository implements IEmailVerifi
         return true;
     }
 
+    async findByEmail(email: string): Promise<EmailVerificationEntity | null> {
+        if (this.shouldFail) throw new Error("Repository find failed");
+
+        const index = this.emails.findIndex(emailEntity => emailEntity.email === email);
+
+        if (index === -1)
+            return null;
+
+        return this.emails[index];
+    }
+
 }
