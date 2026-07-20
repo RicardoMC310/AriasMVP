@@ -1,5 +1,6 @@
 import Email from "../../../../../core/domain/vo/email.vo.js";
 import EmailVerificationEntityBuilder from "../../../domain/builder/email-verification.builder.js";
+import AlreadyEmailVerificationUsedException from "../../../domain/exception/already-email-verification-used.exception.js";
 import EmailVerificationNotExistsException from "../../../domain/exception/email-verification-not-exists.exception.js";
 import IEmailVerificationRepository from "../../../domain/repository/email-verification.repository.js";
 import ResendEmailVerificationDTO from "../../dto/in/resend-email-verification/resend-email-verification.dto.js";
@@ -22,6 +23,11 @@ export default class ResendEmailVerificationUseCase {
 
     async execute(dto: ResendEmailVerificationDTO): Promise<void> {
         this.validateInput(dto);
+
+        const found = await this.repository.findByEmail(dto.email);
+
+        if (found !== null && found.verified)
+            throw new AlreadyEmailVerificationUsedException();
 
         const expiresAt = new Date(
             Date.now() + this.MILLISECONDS * this.SECONDS * this.MINUTES
