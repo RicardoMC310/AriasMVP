@@ -5,8 +5,12 @@ import { createDatabase } from "./platform/database/kysely.connection.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import loadEnv from "./platform/env/load.env.js";
+import { generateOpenAPIDocument } from "./docs/openapi.js";
+import swaggerUI from "swagger-ui-express";
+import "./docs/zod-openapi.js";
 
 (async () => {
+
     const db = createDatabase(loadEnv("DATABASE_URL"));
 
     const app = express();
@@ -21,6 +25,12 @@ import loadEnv from "./platform/env/load.env.js";
     app.use(cookieParser(loadEnv("COOKIE_SECRET")));
 
     app.use(makeRouter(db));
+
+    app.use(
+        "/docs",
+        swaggerUI.serve,
+        swaggerUI.setup(generateOpenAPIDocument())
+    );
 
     const host = process.env.SERVER_HOST ?? "0.0.0.0";
     const port = Number(process.env.SERVER_PORT ?? 8080);
