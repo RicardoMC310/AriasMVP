@@ -26,7 +26,7 @@ class EmailVerificationRepository {
 }
 
 @riverpod 
-Future<EmailVerificationRepository> userRepository(Ref ref) async {
+Future<EmailVerificationRepository> emailVerificationRepository(Ref ref) async {
   final client = await ref.watch(apiProvider.future);
   return EmailVerificationRepository(client);
 }
