@@ -1,6 +1,6 @@
-// global/states/auth_state.dart
+import 'package:app/api/repositories/auth/auth.repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:app/global/network/api_provider.dart';
+import 'package:app/api/provider/api_provider.dart';
 
 part 'auth_state.g.dart';
 
@@ -10,13 +10,8 @@ class AuthNotifier extends _$AuthNotifier {
   bool build() => false;
 
   Future<void> init() async {
-    final client = await ref.read(apiProvider.future);
-    try {
-      await client.get('/auth/refresh'); // TODO: confirmar rota real com o backend
-      state = true;
-    } catch (_) {
-      state = false;
-    }
+    final repository = await ref.read(authRepositoryProvider.future);
+    state = await repository.refresh(); // TODO: confirm session verification endpoint
   }
 
   Future<void> login(String email, String password) async {
@@ -27,6 +22,8 @@ class AuthNotifier extends _$AuthNotifier {
   }
 
   Future<void> logout() async {
-    state = false; // TODO: confirmar se existe rota de logout no backend pra invalidar/limpar o cookie server-side
+    final repository = await ref.read(authRepositoryProvider.future);
+    await repository.logout(); // TODO: confirm logout endpoint in backend
+    state = false;  
   }
 }
