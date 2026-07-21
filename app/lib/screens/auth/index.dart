@@ -1,36 +1,28 @@
-import 'package:app/api/repositories/auth.repository.dart';
+import 'package:app/api/repositories/auth/auth.repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _authRepository = AuthRepository();
 
-  final TextEditingController nameController = TextEditingController(); 
   final TextEditingController emailController = TextEditingController(); 
   final TextEditingController passwordController = TextEditingController(); 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      appBar: AppBar(title: Text('Login')),
       body: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(
-              key: Key('name'),
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Name'
-              ),
-            ),
             TextField(
               key: Key('email'),
               controller: emailController,
@@ -46,9 +38,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: () => _authRepository, child: Text('Register')),
+            ElevatedButton(onPressed: () => _authRepository, child: Text('Login')),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: () => context.go('/login'), child: Text("Already have an account? Login")),
+            ElevatedButton(onPressed: () => context.go('/register'), child: Text("Don't have an account? Register")),
           ],
         ),
       )

@@ -1,28 +1,36 @@
-import 'package:app/api/repositories/auth.repository.dart';
+import 'package:app/api/repositories/auth/auth.repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _authRepository = AuthRepository();
 
+  final TextEditingController nameController = TextEditingController(); 
   final TextEditingController emailController = TextEditingController(); 
   final TextEditingController passwordController = TextEditingController(); 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: Text('Register')),
       body: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
+            TextField(
+              key: Key('name'),
+              controller: nameController,
+              decoration: InputDecoration(
+                labelText: 'Name'
+              ),
+            ),
             TextField(
               key: Key('email'),
               controller: emailController,
@@ -38,9 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: () => _authRepository, child: Text('Login')),
+            ElevatedButton(onPressed: () => _authRepository, child: Text('Register')),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: () => context.go('/register'), child: Text("Don't have an account? Register")),
+            ElevatedButton(onPressed: () => context.go('/login'), child: Text("Already have an account? Login")),
           ],
         ),
       )
