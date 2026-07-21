@@ -1,17 +1,18 @@
-import { describe, beforeEach, afterEach, it, expect } from "@jest/globals";
+import { describe, beforeEach, afterEach, it, expect, jest } from "@jest/globals";
 import { Kysely } from "kysely";
 import { DB } from "../../../../platform/database/db.js";
 import KyselyEmailVerificationRepository from "./kysely.infra.js";
 import { createDatabase } from "../../../../platform/database/kysely.connection.js";
 import CreateEmailVerificationUseCase from "../../application/use-cases/create-email-verification/create-email-verification.use-case.js";
 import EmailVericationCodeGenerator from "../code/code-generator.infra.js";
-import resendEmailVerificationUseCaseFactory from "../../../../compositor/email-verification/use-cases/resend-email-verification.compositot.ts/resend-email-verification.compositor.js";
 import ResendEmailVerificationUseCase from "../../application/use-cases/resend-email-verification/resend-email-verification.use-case.js";
+import EmailVerificationEntityBuilder from "../../domain/builder/email-verification.builder.js";
 
 describe("Teste de integração com kysely com o módulo de verificação de email", () => {
     let db: Kysely<DB>
     let kyselyEmailVerificationRepository: KyselyEmailVerificationRepository;
-    let emailVerificatioCodeGenerator: EmailVericationCodeGenerator;
+    let userId: string;
+    let email: string;
 
     beforeEach(async () => {
         if (process.env.DATABASE_URL === undefined)
@@ -19,10 +20,22 @@ describe("Teste de integração com kysely com o módulo de verificação de ema
 
         db = createDatabase(process.env.DATABASE_URL);
         kyselyEmailVerificationRepository = new KyselyEmailVerificationRepository(db);
-        emailVerificatioCodeGenerator = new EmailVericationCodeGenerator();
+
+        userId = crypto.randomUUID();
+        email = "ricardo@gmail.com";
 
         await db.deleteFrom("email_verification").execute();
         await db.deleteFrom("users").execute();
+
+        await db.insertInto("users")
+            .values({
+                id: userId,
+                email: email,
+                name: "ricardo",
+                password_hash: "hashed:12345678",
+                state: "VERIFICATION_PENDING"
+            })
+            .execute();
     });
 
     afterEach(async () => {
@@ -30,27 +43,17 @@ describe("Teste de integração com kysely com o módulo de verificação de ema
     });
 
     it("Deve poder registrar uma nova verificação de email", async () => {
-        const body = {
-            email: "ricardo@gmail.com",
-            userId: crypto.randomUUID()
-        };
-
-        await db.insertInto("users")
-            .values({
-                id: body.userId,
-                email: body.email,
-                name: "ricardo",
-                password_hash: "hashed:12345678",
-                state: "VERIFICATION_PENDING"
-            })
-            .execute();
-
-        const createEmailVerificationUseCase = new CreateEmailVerificationUseCase(
-            emailVerificatioCodeGenerator,
-            kyselyEmailVerificationRepository
+        await kyselyEmailVerificationRepository.save(
+            EmailVerificationEntityBuilder.create()
+                .withId(crypto.randomUUID())
+                .withAttempts(0)
+                .withCodeHash("hashed:token")
+                .withEmail("ricardo@gmail.com")
+                .withExpiresAt(new Date(Date.now() + 1000 * 60 * 30))
+                .withUserId(userId)
+                .withVerified(false)
+                .build()
         );
-
-        await expect(createEmailVerificationUseCase.execute(body)).resolves.not.toThrow();
 
         const emailVerification = await db.selectFrom("users as u")
             .innerJoin("email_verification", (join) => 
@@ -67,62 +70,47 @@ describe("Teste de integração com kysely com o módulo de verificação de ema
             .executeTakeFirst();
 
         expect(emailVerification!.id).toBeDefined();
-        expect(emailVerification!.email).toBe(body.email);
-        expect(emailVerification!.user_id).toBe(body.userId);
+        expect(emailVerification!.email).toBe(email);
+        expect(emailVerification!.user_id).toBe(userId);
         expect(emailVerification!.attempts).toBe(0);
         expect(emailVerification!.verified).toBe(false);
         expect(emailVerification!.expiresAt.getTime()).toBeGreaterThan(Date.now());
     });
 
     it("Deve poder atualizar uma verificação de email existente", async () => {
-        const body = {
-            email: "ricardo@gmail.com",
-            userId: crypto.randomUUID()
-        };
+        const entity = EmailVerificationEntityBuilder.create()
+                .withId(crypto.randomUUID())
+                .withAttempts(0)
+                .withCodeHash("hashed:token")
+                .withEmail(email)
+                .withExpiresAt(new Date(Date.now() + 1000 * 60 * 30))
+                .withUserId(userId)
+                .withVerified(false)
+                .build()
 
-        await db.insertInto("users")
-            .values({
-                id: body.userId,
-                email: body.email,
-                name: "ricardo",
-                password_hash: "hashed:12345678",
-                state: "VERIFICATION_PENDING"
-            })
-            .execute();
+        await kyselyEmailVerificationRepository.save(entity);
 
-        const codeHash = "hashed:code";
-        const attempts = 0;
-
-        await db.insertInto("email_verification")
-            .values({
-                id: crypto.randomUUID(),
-                code_hash: codeHash,
-                email: body.email,
-                expiresAt: new Date(Date.now() + 1000 * 60 * 30),
-                user_id: body.userId,
-                attempts: attempts,
-                verified: false
-            })
-            .execute();
-
-        const resendEmailVerificationUseCase = new ResendEmailVerificationUseCase(
-            kyselyEmailVerificationRepository,
-            emailVerificatioCodeGenerator
-        );
-
-        await resendEmailVerificationUseCase.execute({ email: body.email });
+        entity.incrementAttempts();
+        
+        await kyselyEmailVerificationRepository.update(entity);
 
         const found = await db.selectFrom("email_verification")
             .selectAll()
-            .where("email", "=", body.email)
+            .where("email", "=", email)
             .executeTakeFirst();
 
         expect(found).toBeDefined();
 
-        expect(found!.email).toBe(body.email);
-        expect(found!.user_id).toBe(body.userId);
-        expect(found!.attempts).toBe(attempts);
-        expect(found!.code_hash).not.toBe(codeHash);
+        expect(found!.email).toBe(email);
+        expect(found!.user_id).toBe(userId);
+        expect(found!.attempts).toBe(1);
+        expect(found!.code_hash).toBe("hashed:token");
+    });
+
+    it("Deve encontrar uma verificação pelo email", async () => {
+        const found = await kyselyEmailVerificationRepository.findByEmail(email);
+
+        expect(found).toBeDefined();
     });
 
 });

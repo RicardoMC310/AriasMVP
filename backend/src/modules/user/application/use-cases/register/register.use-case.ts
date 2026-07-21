@@ -45,7 +45,7 @@ export default class RegisterUserUseCase {
     }
 
     private validateInput(dto: RegisterUserDTO) {
-        Email.isValid(dto.email);
+        Email.ensureValid(dto.email);
 
         const regex: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\W_]).{8,}$/;
 
@@ -54,11 +54,7 @@ export default class RegisterUserUseCase {
     }
 
     private async notifyAll(email: string, userId: string) {
-        await Promise.all(
-            this.observers.map(observer =>
-                observer.execute({ email, userId })
-            )
-        );
+        await Promise.all(this.observers.map(observer => observer.execute({ email, userId })));
     }
 
 }

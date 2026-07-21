@@ -1,10 +1,11 @@
 import Email from "../../../../../core/domain/vo/email.vo.js";
 import EmailVerificationEntityBuilder from "../../../domain/builder/email-verification.builder.js";
+import AlreadyEmailVerificationUsedException from "../../../domain/exception/already-email-verification-used.exception.js";
 import EmailVerificationNotExistsException from "../../../domain/exception/email-verification-not-exists.exception.js";
 import IEmailVerificationRepository from "../../../domain/repository/email-verification.repository.js";
 import ResendEmailVerificationDTO from "../../dto/in/resend-email-verification/resend-email-verification.dto.js";
 import IEmailVerificationCodeGenerator from "../../port/code-generator.port.js";
-import EmailVerificationObserver from "../../port/mailer-send-observer.port.js";
+import IEmailVerificationUpdateObserver from "../../port/observers/email-verification-update-observer.port.js";
 
 export default class ResendEmailVerificationUseCase {
 
@@ -13,7 +14,7 @@ export default class ResendEmailVerificationUseCase {
     private readonly MINUTES = 30;
     private readonly TOKEN_LENGTH = 8;
 
-    private readonly observers: EmailVerificationObserver[] = [];
+    private readonly observers: IEmailVerificationUpdateObserver[] = [];
 
     constructor(
         private readonly repository: IEmailVerificationRepository,
@@ -22,6 +23,11 @@ export default class ResendEmailVerificationUseCase {
 
     async execute(dto: ResendEmailVerificationDTO): Promise<void> {
         this.validateInput(dto);
+
+        const found = await this.repository.findByEmail(dto.email);
+
+        if (found !== null && found.verified)
+            throw new AlreadyEmailVerificationUsedException();
 
         const expiresAt = new Date(
             Date.now() + this.MILLISECONDS * this.SECONDS * this.MINUTES
@@ -44,20 +50,16 @@ export default class ResendEmailVerificationUseCase {
         await this.notifyAll(dto.email, token);
     }
 
-    registerObserver(observer: EmailVerificationObserver) {
+    registerObserver(observer: IEmailVerificationUpdateObserver) {
         this.observers.push(observer);
     }
 
     private validateInput(dto: ResendEmailVerificationDTO) {
-        Email.isValid(dto.email);
+        Email.ensureValid(dto.email);
     }
 
     private async notifyAll(email: string, token: string) {
-        await Promise.all([
-            ...this.observers.map(observer => {
-                observer.execute({ email, token });
-            })
-        ]);
+        await Promise.all(this.observers.map(observer => observer.execute({ email, token })));
     }
 
 }

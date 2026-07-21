@@ -1,15 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import createHttpResponse from "../create-response.express.js";
-import DomainException, { DetailError } from "../../../core/domain/exception/domain.exception.js";
-import { STATUS_CODES } from "http";
+import DomainException, { CategoryError } from "../../../core/domain/exception/domain.exception.js";
 
-const mapToHttpCode: Record<DetailError, number> = {
-    [DetailError.AUTENTICATE]: 401,
-    [DetailError.AUTHORIZATION]: 403,
-    [DetailError.CONFLICT]: 409,
-    [DetailError.NOT_FOUND]: 404,
-    [DetailError.VALIDATION]: 400,
-    [DetailError.RESTORE]: 502
+const mapToHttpCode: Record<CategoryError, number> = {
+    [CategoryError.AUTENTICATE]: 401,
+    [CategoryError.AUTHORIZATION]: 403,
+    [CategoryError.CONFLICT]: 409,
+    [CategoryError.NOT_FOUND]: 404,
+    [CategoryError.VALIDATION]: 400,
+    [CategoryError.RESTORE]: 502
 };
 
 export default function errorMiddleware(error: Error, req: Request, res: Response, next: NextFunction) {
@@ -18,8 +17,10 @@ export default function errorMiddleware(error: Error, req: Request, res: Respons
     if (error instanceof DomainException) {
         const response = createHttpResponse(
             error.message,
+            error.code,
             mapToHttpCode[error.detail],
-            error.data
+            [],
+            error.meta
         );
 
         res.status(response.statusCode).json(response);
@@ -30,6 +31,7 @@ export default function errorMiddleware(error: Error, req: Request, res: Respons
 
     const response = createHttpResponse(
         error.message,
+        "INTERNAL_ERROR",
         500,
     );
 

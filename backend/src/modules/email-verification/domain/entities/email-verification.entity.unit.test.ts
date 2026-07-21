@@ -104,7 +104,7 @@ describe("Testes da entidade de verificação de email", () => {
             .withEmail("ricardo@gmail.com")
             .build();
 
-        expect(() => emailVerificationEntity.unsureNotExpired()).toThrow(ExpiredEmailVerificationException);
+        expect(() => emailVerificationEntity.ensureNotExpired()).toThrow(ExpiredEmailVerificationException);
     });
 
 });

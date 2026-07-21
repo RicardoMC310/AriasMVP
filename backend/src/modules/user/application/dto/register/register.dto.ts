@@ -1,5 +1,6 @@
 import z from "zod";
 
+
 export const RegisterUserDTOSchema = z.object({
     username: z.string().min(3).max(64),
     email: z.email(),

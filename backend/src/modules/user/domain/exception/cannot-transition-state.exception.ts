@@ -1,4 +1,4 @@
-import DomainException, { DetailError } from "../../../../core/domain/exception/domain.exception.js"
+import DomainException, { CategoryError } from "../../../../core/domain/exception/domain.exception.js"
 import { UserState } from "../entity/user.entity.js";
 
 export default class UserCannotTransitionStateException extends DomainException {
@@ -6,7 +6,8 @@ export default class UserCannotTransitionStateException extends DomainException 
     constructor(current: UserState, from: UserState) {
         super(
             "User cannot transition state from " + current as string + " to " + from as string,
-            DetailError.AUTHORIZATION
+            CategoryError.AUTHORIZATION,
+            "INVALID_TRANSITION_STATE"
         );
     }
 

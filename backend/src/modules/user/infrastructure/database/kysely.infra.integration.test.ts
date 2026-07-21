@@ -63,7 +63,7 @@ describe("Teste de integração com kysely com o módulo de usuário", () => {
 
         const findUserByEmailUseCase = new FindUserByEmailUseCase(kyselyUserRepository);
 
-        const user = await findUserByEmailUseCase.findUserByEmail(email);
+        const user = await findUserByEmailUseCase.execute(email);
 
         expect(user!.id).toBeDefined();
         expect(user!.username).toBe(username);

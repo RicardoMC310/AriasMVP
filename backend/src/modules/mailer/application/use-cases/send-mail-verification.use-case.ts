@@ -34,7 +34,7 @@ export default class SendMailVerificationUseCase {
     }
 
     private validate(dto: SendEmailVerificationDTO) {
-        Email.isValid(dto.email);
+        Email.ensureValid(dto.email);
     }
 
 }

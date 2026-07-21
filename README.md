@@ -18,7 +18,7 @@
 
 ## Features
 
-- [x] Email verification (code generation, expiration, attempt limiting)
+- [x] Email verification (code generation, expiration, attempt limiting, token verification)
 - [x] User registration with email validation and password hashing
 - [x] User authentication with JWT (access token via httpOnly cookie)
 - [x] Email sending via SMTP (Nodemailer + Handlebars templates)
@@ -68,10 +68,16 @@ This keeps things explicit and avoids framework magic — every dependency is tr
 
 #### 2. Observer Pattern (Cross-Module Side Effects)
 
-Use-cases support `registerObserver()` and `notifyAll()`. This decouples modules that need to react to events from other modules:
+Use-cases support `registerObserver()` and `notifyAll()`. This decouples modules that need to react to events from other modules. Each observer type is defined as a dedicated port interface:
 
-- `RegisterUserUseCase` → notifies observers after user creation (triggers email verification)
-- `CreateEmailVerificationUseCase` → notifies observers after code creation (triggers email sending)
+- `IEmailVerificationUpdateObserver` — reacts to code creation/resend (triggers email sending)
+- `IEmailVerificationVerifyObserver` — reacts to successful verification (triggers user state transition)
+
+**Observer chains:**
+
+- `RegisterUserUseCase` → `CreateEmailVerificationUseCase` (via `IEmailVerificationUpdateObserver`)
+- `CreateEmailVerificationUseCase` → `SendMailVerificationUseCase` (via `IEmailVerificationUpdateObserver`)
+- `VerifyEmailVerificationUseCase` → state transition observer (via `IEmailVerificationVerifyObserver`)
 
 No event bus needed — observers are registered at composition time.
 
@@ -98,16 +104,18 @@ All API responses follow a consistent structure:
 ```json
 {
   "message": "Human-readable message",
+  "code": "SUCCESSFULY",
   "statusCode": 200,
-  "data": []
+  "data": [],
+  "meta": []
 }
 ```
 
 #### 8. Error Handling
 
-Domain exceptions extend `DomainException` with a `DetailError` enum that maps directly to HTTP status codes:
+Domain exceptions extend `DomainException` with a `CategoryError` enum that maps to HTTP status codes, plus a machine-readable `code` and optional `meta` with contextual data:
 
-| DetailError    | HTTP Status |
+| CategoryError  | HTTP Status |
 |----------------|-------------|
 | `VALIDATION`   | 400         |
 | `AUTENTICATE`  | 401         |
@@ -116,7 +124,19 @@ Domain exceptions extend `DomainException` with a `DetailError` enum that maps d
 | `CONFLICT`     | 409         |
 | `RESTORE`      | 502         |
 
-Unhandled exceptions return **500** with the stack trace logged to the server console.
+**Error response example:**
+
+```json
+{
+  "message": "Invalid \"not-an-email\". Please enter a valid email.",
+  "code": "INVALID_EMAIL",
+  "statusCode": 400,
+  "data": [],
+  "meta": { "email": "not-an-email is invalid" }
+}
+```
+
+Unhandled exceptions return **500** with `code: "INTERNAL_ERROR"` and the stack trace logged to the server console.
 
 ---
 
@@ -259,135 +279,6 @@ All variables are configured in the `.env` file at the backend root.
 
 ---
 
-## API Routes
-
-Base URL: `http://localhost:8080`
-
-### Health Check
-
-```
-GET /healthy
-```
-
-Returns a basic health check response. Useful for load balancers and monitoring.
-
-**Response** `200 OK`
-
-```json
-{
-  "message": "ok",
-  "statusCode": 200,
-  "data": []
-}
-```
-
----
-
-### User
-
-#### Register
-
-```
-POST /user/register
-```
-
-Creates a new user account. The user is created with a `VERIFICATION_PENDING` state. An email verification code is generated and sent automatically via the observer chain.
-
-**Request Body**
-
-```json
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "S3cure!Pass"
-}
-```
-
-| Field      | Type   | Constraints                                                |
-|------------|--------|------------------------------------------------------------|
-| `username` | string | Min 3, max 64 characters                                  |
-| `email`    | string | Valid email format                                         |
-| `password` | string | Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special |
-
-**Response** `200 OK`
-
-```json
-{
-  "message": "User Registered. Check your email inbox",
-  "statusCode": 200,
-  "data": []
-}
-```
-
-**Error Responses**
-
-| Status | Condition                  | Example Message                                  |
-|--------|---------------------------|--------------------------------------------------|
-| 400    | Invalid email format       | `"Invalid email"`                                |
-| 400    | Invalid password format    | `"The password must have at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"` |
-| 409    | Email already registered   | `"User already registered"`                      |
-| 500    | Server error               | `"Internal Server Error"`                        |
-
----
-
-### Auth
-
-#### Login
-
-```
-POST /auth/login
-```
-
-Authenticates a user and returns a JWT access token set as an **httpOnly signed cookie**. The token expires in 15 minutes. Only users with `ACTIVE` state (verified email) can log in.
-
-**Request Body**
-
-```json
-{
-  "email": "john@example.com",
-  "password": "S3cure!Pass"
-}
-```
-
-| Field      | Type   | Constraints           |
-|------------|--------|-----------------------|
-| `email`    | string | Valid email format    |
-| `password` | string | Min 1 character       |
-
-**Response** `200 OK`
-
-Sets cookie `accessToken` and returns:
-
-```json
-{
-  "message": "Login Successfuly",
-  "statusCode": 200,
-  "data": []
-}
-```
-
-**Cookie Properties**
-
-| Property   | Value                          |
-|------------|--------------------------------|
-| `httpOnly` | `true`                         |
-| `sameSite` | `lax`                          |
-| `signed`   | `true`                         |
-| `path`     | `/`                            |
-| `secure`   | Configurable via `COOKIE_SECURE` |
-| `maxAge`   | 15 minutes (900000ms)          |
-
-**Error Responses**
-
-| Status | Condition                    | Example Message          |
-|--------|-----------------------------|--------------------------|
-| 400    | Invalid email format         | `"Invalid email"`        |
-| 401    | User not found               | `"User not found"`       |
-| 401    | Email not verified           | `"User not verified"`    |
-| 401    | Wrong password               | `"Invalid credentials"`  |
-
----
-
 ## Database Schema
 
 PostgreSQL with the following tables (managed by Kysely migrations):
@@ -459,7 +350,10 @@ backend/
 │   │   │   ├── dependencies/
 │   │   │   │   ├── repository.compositor.ts
 │   │   │   │   └── code-generator.compositor.ts
-│   │   │   ├── use-cases/create-email-verification/create-email-verification.compositor.ts
+│   │   │   ├── use-cases/
+│   │   │   │   ├── create-email-verification/create-email-verification.compositor.ts
+│   │   │   │   ├── resend-email-verification/resend-email-verification.compositor.ts
+│   │   │   │   └── verify-email-verification/verify-email-verification.compositor.ts
 │   │   │   ├── controller/controller.compositor.ts
 │   │   │   └── router/router.compositor.ts
 │   │   └── mailer/
@@ -482,9 +376,11 @@ backend/
 │   │   │   └── presentation/                AuthController
 │   │   ├── email-verification/
 │   │   │   ├── domain/                      EmailVerificationEntity, builder, repository, exceptions
-│   │   │   ├── application/                 CreateEmailVerificationUseCase, ports, DTOs
+│   │   │   ├── application/                 Create/Resend/Verify EmailVerificationUseCases, ports, DTOs
+│   │   │   │   └── port/observers/          IEmailVerificationUpdateObserver, IEmailVerificationVerifyObserver
 │   │   │   ├── infrastructure/              KyselyEmailVerificationRepository, EmailVericationCodeGenerator
-│   │   │   └── presentation/                EmailVericationController (stub)
+│   │   │   ├── tests/fakes/                 Fake repository, fake code generator
+│   │   │   └── presentation/                EmailVericationController
 │   │   └── mailer/
 │   │       ├── domain/                      MailEntity, MailEntityBuilder
 │   │       ├── application/                 SendMailVerificationUseCase, ports, DTOs

@@ -98,7 +98,7 @@ class TestFakeAuthUserFinder implements IAuthUserFinder {
             .build()
     ];
 
-    async findUserByEmail(email: string): Promise<UserEntity | null> {
+    async execute(email: string): Promise<UserEntity | null> {
         const found = this.users.find(user => user.email === email);
 
         if (found === undefined)
