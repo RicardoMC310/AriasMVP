@@ -5,8 +5,6 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ApiClient {
-  
-
   static Future<Dio> create() async {
     final defaultBaseUrl = String.fromEnvironment(
       'API_BASE_URL',
