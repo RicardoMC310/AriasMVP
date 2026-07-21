@@ -1,24 +1,32 @@
+// global/states/auth_state.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:app/config/storage/token_storage.dart';
+import 'package:app/global/network/api_provider.dart';
 
-part 'auth_state.g.dart'; 
+part 'auth_state.g.dart';
 
 @riverpod
 class AuthNotifier extends _$AuthNotifier {
   @override
-  String? build() => null; 
+  bool build() => false;
 
   Future<void> init() async {
-    state = await TokenStorage.read();
+    final client = await ref.read(apiProvider.future);
+    try {
+      await client.get('/auth/refresh'); // TODO: confirmar rota real com o backend
+      state = true;
+    } catch (_) {
+      state = false;
+    }
   }
 
-  Future<void> login(String token) async {
-    state = token;
-    await TokenStorage.save(token);
+  Future<void> login(String email, String password) async {
+    final client = await ref.read(apiProvider.future);
+    await client.post('/auth/login', data: {'email': email, 'password': password});
+
+    state = true;
   }
 
   Future<void> logout() async {
-    state = null;
-    await TokenStorage.delete();
+    state = false; // TODO: confirmar se existe rota de logout no backend pra invalidar/limpar o cookie server-side
   }
 }
