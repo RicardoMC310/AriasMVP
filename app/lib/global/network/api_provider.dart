@@ -6,4 +6,4 @@ import 'package:app/api/api_client.dart';
 part 'api_provider.g.dart';
 
 @riverpod
-Future<Dio> dio(Ref ref) => ApiClient.create();
+Future<Dio> api(Ref ref) => ApiClient.create();

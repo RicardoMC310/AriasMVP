@@ -9,25 +9,25 @@ part of 'api_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(dio)
-final dioProvider = DioProvider._();
+@ProviderFor(api)
+final apiProvider = ApiProvider._();
 
-final class DioProvider
+final class ApiProvider
     extends $FunctionalProvider<AsyncValue<Dio>, Dio, FutureOr<Dio>>
     with $FutureModifier<Dio>, $FutureProvider<Dio> {
-  DioProvider._()
+  ApiProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'dioProvider',
+        name: r'apiProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$dioHash();
+  String debugGetCreateSourceHash() => _$apiHash();
 
   @$internal
   @override
@@ -36,8 +36,8 @@ final class DioProvider
 
   @override
   FutureOr<Dio> create(Ref ref) {
-    return dio(ref);
+    return api(ref);
   }
 }
 
-String _$dioHash() => r'235084d19f38c84f1cfe746805dcb32464b2d1e8';
+String _$apiHash() => r'173c114494172f792dab5676aae7e8755347aca6';
