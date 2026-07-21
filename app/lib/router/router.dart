@@ -16,9 +16,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...landingRoute
     ],
     redirect: (context, state) {
-      final token = ref.read(authProvider);
-
-      final loggedIn = token != null;
+      final loggedIn = ref.read(authProvider);
       final goingToLogin = state.matchedLocation == '/login';
       final goingToRegister = state.matchedLocation == '/register';
 
