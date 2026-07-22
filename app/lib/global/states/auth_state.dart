@@ -11,7 +11,7 @@ class AuthNotifier extends _$AuthNotifier {
 
   Future<void> init() async {
     final repository = await ref.read(authRepositoryProvider.future);
-    state = await repository.refresh(); // TODO: confirm session verification endpoint
+    state = await repository.checkSession(); 
   }
 
   Future<ApiResponse<List<dynamic>>> login(String email, String password) async {
@@ -25,7 +25,8 @@ class AuthNotifier extends _$AuthNotifier {
 
   Future<void> logout() async {
     final repository = await ref.read(authRepositoryProvider.future);
-    await repository.logout(); // TODO: confirm logout endpoint in backend
+    await repository.logout(); // TODO: verify future fix in AuthRepository
+
     state = false;  
   }
 }

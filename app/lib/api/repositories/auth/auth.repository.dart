@@ -18,16 +18,18 @@ class AuthRepository {
     return ApiResponse.fromJson(res.data, (d) => d);
   }
 
-  Future<bool> refresh() async {
+  Future<bool> checkSession() async {
     try {
-      await _client.get('/auth/refresh'); // TODO: confirm session verification endpoint
+      await _client.get('/auth/me');
       return true;
     } on DioException {
       return false;
     }
   }
 
-  Future<void> logout() async {}
+  Future<void> logout() async {
+    await _client.post('/auth/logout'); // TODO: pass accessToken to revoke it
+  }
 }
 
 @riverpod
