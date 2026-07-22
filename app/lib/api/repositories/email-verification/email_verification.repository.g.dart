@@ -9,10 +9,11 @@ part of 'email_verification.repository.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(userRepository)
-final userRepositoryProvider = UserRepositoryProvider._();
+@ProviderFor(emailVerificationRepository)
+final emailVerificationRepositoryProvider =
+    EmailVerificationRepositoryProvider._();
 
-final class UserRepositoryProvider
+final class EmailVerificationRepositoryProvider
     extends
         $FunctionalProvider<
           AsyncValue<EmailVerificationRepository>,
@@ -22,19 +23,19 @@ final class UserRepositoryProvider
     with
         $FutureModifier<EmailVerificationRepository>,
         $FutureProvider<EmailVerificationRepository> {
-  UserRepositoryProvider._()
+  EmailVerificationRepositoryProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'userRepositoryProvider',
+        name: r'emailVerificationRepositoryProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$userRepositoryHash();
+  String debugGetCreateSourceHash() => _$emailVerificationRepositoryHash();
 
   @$internal
   @override
@@ -44,8 +45,9 @@ final class UserRepositoryProvider
 
   @override
   FutureOr<EmailVerificationRepository> create(Ref ref) {
-    return userRepository(ref);
+    return emailVerificationRepository(ref);
   }
 }
 
-String _$userRepositoryHash() => r'dbac5ff295ddb5ba948cd9408335660ce6d50803';
+String _$emailVerificationRepositoryHash() =>
+    r'4dd981af3a2002ab8bfa6da483d76fefcf89d3ca';
