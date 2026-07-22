@@ -3,6 +3,7 @@ import VerifyEmailVerificationUseCase from "../../../../modules/email-verificati
 import { DB } from "../../../../platform/database/db.js";
 import emailVerificationCodeGeneratorFactory from "../../dependencies/code-generator.compositor.js";
 import kyselyEmailVerificationRepositoryFactory from "../../dependencies/repository.compositor.js";
+import activateUserUseCaseFactory from "../../../user/use-cases/activate-user/activate-user.compositor.js";
 
 export default function verifyEmailVerificationUseCaseFactory(db: Kysely<DB>) {
     const useCase = new VerifyEmailVerificationUseCase(
@@ -10,11 +11,9 @@ export default function verifyEmailVerificationUseCaseFactory(db: Kysely<DB>) {
         kyselyEmailVerificationRepositoryFactory(db)
     );
 
-    useCase.registerObserver({
-        execute: async (userId: string) => {
-            console.log(userId);
-        }
-    });
+    useCase.registerObserver(
+        activateUserUseCaseFactory(db)
+    );
 
     return useCase;
 }
