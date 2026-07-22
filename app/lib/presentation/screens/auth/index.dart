@@ -85,7 +85,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               TextFormField(
                 key: const Key('password'),
                 controller: _passwordController,
-                obscureText: true, // Oculta os caracteres da senha
+                obscureText: true, 
                 decoration: const InputDecoration(labelText: 'Password'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {

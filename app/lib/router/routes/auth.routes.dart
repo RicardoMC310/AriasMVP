@@ -1,5 +1,5 @@
-import 'package:app/screens/user/index.dart';
-import 'package:app/screens/auth/index.dart';
+import 'package:app/presentation/screens/user/index.dart';
+import 'package:app/presentation/screens/auth/index.dart';
 import 'package:go_router/go_router.dart';
 
 final List<RouteBase> authRoutes = [

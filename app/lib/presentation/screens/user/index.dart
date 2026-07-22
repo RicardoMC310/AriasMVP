@@ -12,7 +12,6 @@ class RegisterScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
-  // Chave global necessária para rastrear e validar o formulário
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _usernameController = TextEditingController(); 
@@ -22,7 +21,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _loading = false;
 
   Future<void> register() async {
-    // Só prossegue se todos os validadores do formulário retornarem null
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
@@ -105,7 +103,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               TextFormField(
                 key: const Key('password'),
                 controller: _passwordController,
-                obscureText: true, // Oculta a senha digitada
+                obscureText: true, 
                 decoration: const InputDecoration(labelText: 'Password'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -119,7 +117,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                // Desativa o clique caso esteja carregando
                 onPressed: _loading ? null : () => register(), 
                 child: _loading 
                     ? const SizedBox(
