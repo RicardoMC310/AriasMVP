@@ -1,3 +1,3 @@
 export default interface IEmailVerificationVerifyObserver {
-    execute(userId: string): Promise<void>;
+    execute(dto: {userId: string}): Promise<void>;
 }
