@@ -1,6 +1,6 @@
 import 'package:app/api/repositories/auth/auth.repository.dart';
+import 'package:app/global/models/api/api_response.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:app/api/provider/api_provider.dart';
 
 part 'auth_state.g.dart';
 
@@ -14,11 +14,13 @@ class AuthNotifier extends _$AuthNotifier {
     state = await repository.refresh(); // TODO: confirm session verification endpoint
   }
 
-  Future<void> login(String email, String password) async {
-    final client = await ref.read(apiProvider.future);
-    await client.post('/auth/login', data: {'email': email, 'password': password});
+  Future<ApiResponse<List<dynamic>>> login(String email, String password) async {
+    final repository = await ref.read(authRepositoryProvider.future);
+    final res = await repository.login(email, password);
 
     state = true;
+
+    return res;
   }
 
   Future<void> logout() async {
