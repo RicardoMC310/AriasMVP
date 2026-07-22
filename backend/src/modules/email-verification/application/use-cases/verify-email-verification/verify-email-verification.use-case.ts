@@ -51,7 +51,7 @@ export default class VerifyEmailVerificationUseCase {
     }
 
     private async notifyAll(userId: string) {
-        await Promise.all(this.observers.map(observer => observer.execute(userId)));
+        await Promise.all(this.observers.map(observer => observer.execute({userId})));
     }
 
 }
