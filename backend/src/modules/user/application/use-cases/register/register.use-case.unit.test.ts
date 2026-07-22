@@ -1,12 +1,11 @@
 import { beforeEach, expect, jest, describe, it } from "@jest/globals";
 import InvalidEmailException from "../../../../../core/domain/exception/invalid-email.exception.js";
-import UserEntity from "../../../domain/entity/user.entity.js";
-import IUserRepository from "../../../domain/repository/user.repository.js";
 import InvalidPasswordException from "../../../domain/exception/invalid-password.exception.js";
-import IUserHasher from "../../port/hasher.port.js";
 import RegisterUserUseCase from "./register.use-case.js";
 import UserAlreadyRegisteredException from "../../../domain/exception/already-register.exception.js";
 import UserEntityBuilder from "../../../domain/builder/user-entity.builder.js";
+import TestFakeUserRepository from "../../../tests/fake/fake-repository.fake.js";
+import TestFakeUserHasher from "../../../tests/fake/fake-hasher.fake.js";
 
 describe("Testes do caso de uso de registro de usuário", () => {
 
@@ -18,7 +17,7 @@ describe("Testes do caso de uso de registro de usuário", () => {
         testUserRepository = new TestFakeUserRepository();
         testUserHasher = new TestFakeUserHasher();
         registerUseCase = new RegisterUserUseCase(
-            testUserRepository, 
+            testUserRepository,
             testUserHasher
         );
     });
@@ -66,7 +65,7 @@ describe("Testes do caso de uso de registro de usuário", () => {
     });
 
     it("Deve lançar uma exceção se o email já estiver registrado", async () => {
-        testUserRepository.findUserByEmail.mockResolvedValueOnce(
+        testUserRepository.save(
             UserEntityBuilder.create()
                 .withId("101010")
                 .withEmail("ricardo@gmail.com")
@@ -83,12 +82,12 @@ describe("Testes do caso de uso de registro de usuário", () => {
 
         await expect(registerUseCase.execute(body)).rejects.toThrow(UserAlreadyRegisteredException);
 
-        expect(testUserRepository.users).toHaveLength(0);
+        expect(testUserRepository.users).toHaveLength(1);
     });
 
     it("Deve notificar os observers ao registrar usuário", async () => {
         const observer = {
-            execute: jest.fn<(dto : { email: string, userId: string }) => Promise<void>>()
+            execute: jest.fn<(dto: { email: string, userId: string }) => Promise<void>>()
         };
 
         registerUseCase.registerObserver(observer);
@@ -109,23 +108,3 @@ describe("Testes do caso de uso de registro de usuário", () => {
     });
 
 });
-
-class TestFakeUserRepository implements IUserRepository {
-
-    users: UserEntity[] = [];
-
-    async save(userEntity: UserEntity): Promise<void> {
-        this.users.push(userEntity);
-    }
-
-    findUserByEmail = jest.fn<(email: string) => Promise<UserEntity | null>>(async () => { return null });
-
-}
-
-class TestFakeUserHasher implements IUserHasher {
-
-    async hash(text: string): Promise<string> {
-        return "hashed:" + text;
-    }
-
-}
