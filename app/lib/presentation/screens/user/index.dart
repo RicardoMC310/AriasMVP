@@ -1,4 +1,6 @@
 import 'package:app/api/repositories/user/user.repository.dart';
+import 'package:app/presentation/states/email-verification/email_verification_state.dart';
+import 'package:app/presentation/widgets/email-verification/index.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,12 +35,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         _passwordController.text
       );
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
-        context.go('/'); // TODO: show a dialog for email verification 
-      }
+      if (!mounted) return;
+
+      ref.read(emailVerificationProvider.notifier).setEmail(_emailController.text);
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response.message)));
+
+      showDialog(
+        context: context,
+        barrierDismissible: false, 
+        builder: (_) => const EmailVerificationModal(),
+      );
     } on DioException catch (e) {
       final message = e.response?.data?['message'] as String? ?? 'Unexpected error';
       if (mounted) {
