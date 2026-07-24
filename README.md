@@ -12,7 +12,7 @@
 
 ## Tech Stack
 
-![Node.JS](https://img.shields.io/badge/Node.JS-%23?style=flat-square&logo=nodedotjs&color=%235FA04E&logoColor=%23FFF) ![Postgres](https://img.shields.io/badge/PostgreSQL-%23?style=flat-square&color=%234169E1&logo=postgresql&logoColor=%23FFF) ![Static Badge](https://img.shields.io/badge/Typescript-%2523?style=flat-square&logo=typescript&logoColor=%23FFF&color=%233178C6) ![Static Badge](https://img.shields.io/badge/Kysely%20ORM-%2523?style=flat-square&logoColor=%23FFF&color=%23FF7900) ![Static Badge](https://img.shields.io/badge/Express-%2523?style=flat-square&logo=express&logoColor=%23FFF&color=%230A0A0A) ![Static Badge](https://img.shields.io/badge/Argon2id-%2523?style=flat-square&logoColor=%23FFF&color=%23F4F2E9) ![Static Badge](https://img.shields.io/badge/HandleBars-%2523?style=flat-square&logo=handlebarsdotjs&logoColor=%23FFF&color=%23000000) ![Static Badge](https://img.shields.io/badge/Docker-%2523?style=flat-square&logo=docker&logoColor=%23FFF&color=%232496ED) ![Static Badge](https://img.shields.io/badge/Test%20Containers-%2523?style=flat-square&logo=developmentcontainers&logoColor=%23FFF&color=%232753E3) ![Static Badge](https://img.shields.io/badge/Nodemailer-%2523?style=flat-square&logo=gmail&logoColor=%23FFF&color=%23EA4335) ![Static Badge](https://img.shields.io/badge/Zod-%2523?style=flat-square&logo=zod&logoColor=%23FFF&color=%23408AFF) ![Static Badge](https://img.shields.io/badge/Jest-%2523?style=flat-square&logo=jest&logoColor=%23FFF&color=%23C21325)
+![Node.JS](https://img.shields.io/badge/Node.JS-%23?style=flat-square&logo=nodedotjs&color=%235FA04E&logoColor=%23FFF) ![Postgres](https://img.shields.io/badge/PostgreSQL-%23?style=flat-square&color=%234169E1&logo=postgresql&logoColor=%23FFF) ![Static Badge](https://img.shields.io/badge/Typescript-%2523?style=flat-square&logo=typescript&logoColor=%23FFF&color=%233178C6) ![Static Badge](https://img.shields.io/badge/Kysely%20ORM-%2523?style=flat-square&logoColor=%23FFF&color=%23FF7900) ![Static Badge](https://img.shields.io/badge/Express-%2523?style=flat-square&logo=express&logoColor=%23FFF&color=%230A0A0A) ![Static Badge](https://img.shields.io/badge/Argon2id-%2523?style=flat-square&logoColor=%23FFF&color=%23F4F2E9) ![Static Badge](https://img.shields.io/badge/HandleBars-%2523?style=flat-square&logo=handlebarsdotjs&logoColor=%23FFF&color=%23000000) ![Static Badge](https://img.shields.io/badge/Docker-%2523?style=flat-square&logo=docker&logoColor=%23FFF&color=%232496ED) ![Static Badge](https://img.shields.io/badge/Test%20Containers-%2523?style=flat-square&logo=developmentcontainers&logoColor=%23FFF&color=%232753E3) ![Static Badge](https://img.shields.io/badge/Nodemailer-%2523?style=flat-square&logo=gmail&logoColor=%23FFF&color=%23EA4335) ![Static Badge](https://img.shields.io/badge/Zod-%2523?style=flat-square&logo=zod&logoColor=%23FFF&color=%23408AFF) ![Static Badge](https://img.shields.io/badge/Jest-%2523?style=flat-square&logo=jest&logoColor=%23FFF&color=%23C21325) ![Static Badge](https://img.shields.io/badge/Zod%20to%20OpenAPI-%2523?style=flat-square&logoColor=%23FFF&color=%23408AFF) ![Static Badge](https://img.shields.io/badge/Swagger%20UI-%2523?style=flat-square&logo=swagger&logoColor=%23FFF&color=%2385EA2D)
 
 ---
 
@@ -20,8 +20,10 @@
 
 - [x] Email verification (code generation, expiration, attempt limiting, token verification)
 - [x] User registration with email validation and password hashing
+- [x] User activation via email verification
 - [x] User authentication with JWT (access token via httpOnly cookie)
 - [x] Email sending via SMTP (Nodemailer + Handlebars templates)
+- [x] OpenAPI / Swagger documentation at `/docs`
 - [ ] Role-based access control (RBAC)
 - [ ] Product management
 - [ ] Customer management
@@ -47,6 +49,7 @@ src/
 │   └── presentation/   Express controllers
 ├── compositor/         Manual dependency injection (factory functions wiring infra → app)
 ├── platform/           Cross-cutting infrastructure (database, env, Express utils, Zod, mailer)
+├── docs/               OpenAPI registry and Zod-to-OpenAPI extension
 ├── router.ts           Root Express router
 └── index.ts            Application entrypoint
 ```
@@ -77,7 +80,7 @@ Use-cases support `registerObserver()` and `notifyAll()`. This decouples modules
 
 - `RegisterUserUseCase` → `CreateEmailVerificationUseCase` (via `IEmailVerificationUpdateObserver`)
 - `CreateEmailVerificationUseCase` → `SendMailVerificationUseCase` (via `IEmailVerificationUpdateObserver`)
-- `VerifyEmailVerificationUseCase` → state transition observer (via `IEmailVerificationVerifyObserver`)
+- `VerifyEmailVerificationUseCase` → `ActivateUserUseCase` (via `IEmailVerificationVerifyObserver`)
 
 No event bus needed — observers are registered at composition time.
 
@@ -254,6 +257,18 @@ Access the Mailpit inbox at `http://localhost:8025` to view sent emails during d
 
 ---
 
+## API Documentation
+
+The backend ships with **Swagger UI** powered by `@asteasolutions/zod-to-openapi`. Once the server is running, access the interactive API docs at:
+
+```
+http://localhost:8080/docs
+```
+
+The OpenAPI spec is generated at runtime from Zod schemas and served via `swagger-ui-express`. Route handlers register their request/response schemas with the OpenAPI registry, so the documentation stays in sync with the actual code.
+
+---
+
 ## Environment Variables
 
 All variables are configured in the `.env` file at the backend root.
@@ -308,6 +323,7 @@ CREATE TABLE refresh_token (
 CREATE TABLE email_verification (
   id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id   UUID UNIQUE NOT NULL REFERENCES users(id),
+  email     VARCHAR(320) NOT NULL,
   code_hash TEXT UNIQUE NOT NULL,
   expiresAt TIMESTAMPTZ NOT NULL,
   verified  BOOLEAN DEFAULT false,
@@ -336,6 +352,7 @@ backend/
 │   │   │   │   └── repository.compositor.ts
 │   │   │   ├── use-cases/
 │   │   │   │   ├── register/register.compositor.ts
+│   │   │   │   ├── activate-user/activate-user.compositor.ts
 │   │   │   │   └── find-user-by-email/find-user-by-email.compositor.ts
 │   │   │   ├── controller/controller.compositor.ts
 │   │   │   └── router/router.compositor.ts
@@ -363,11 +380,15 @@ backend/
 │   │   ├── exception/                       Base DomainException + shared exceptions
 │   │   ├── policies/policy.policy.ts        Policy<T> interface
 │   │   └── specifications/                  Full Specification pattern (And, Or, Not)
+│   ├── docs/
+│   │   ├── openapi.ts                       OpenAPI document generator
+│   │   └── zod-openapi.ts                   Zod-to-OpenAPI extension
 │   ├── modules/
 │   │   ├── user/
 │   │   │   ├── domain/                      UserEntity, builder, repository interface, exceptions
-│   │   │   ├── application/                 RegisterUserUseCase, FindUserByEmailUseCase, ports, DTOs
+│   │   │   ├── application/                 RegisterUserUseCase, ActivateUserUseCase, FindUserByEmailUseCase, ports, DTOs
 │   │   │   ├── infrastructure/              KyselyUserRepository, ArgonUserHasher
+│   │   │   ├── tests/fakes/                 Fake repository, fake hasher
 │   │   │   └── presentation/                UserController
 │   │   ├── auth/
 │   │   │   ├── domain/                      LoginPolicy, UserActiveSpecification, exceptions
@@ -388,7 +409,7 @@ backend/
 │   ├── platform/                            Cross-cutting infrastructure
 │   │   ├── database/                        Kysely connection, generated types, migrations
 │   │   ├── env/                             Environment variable loader
-│   │   ├── express/                         HttpController type, response builder, error middleware
+│   │   ├── express/                         HttpContext, route registration, OpenAPI mapper, error middleware
 │   │   ├── html-compiler/                   Handlebars template compiler
 │   │   ├── mailer/                          Nodemailer connection and transporter
 │   │   └── zod/                             Zod result unwrap helper
